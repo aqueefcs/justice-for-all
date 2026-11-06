@@ -1,0 +1,46 @@
+{
+  "title": "[TODO] Justice For All — Admin",
+  "nav": {
+    "dashboard": "[TODO] Dashboard",
+    "content": "[TODO] Content",
+    "review": "[TODO] Review queue",
+    "lawyers": "[TODO] Lawyers",
+    "users": "[TODO] Users",
+    "integrations": "[TODO] Integrations",
+    "settings": "[TODO] Settings"
+  },
+  "dashboard": {
+    "welcome": "[TODO] Welcome to the admin console",
+    "apiStatus": "[TODO] API status",
+    "apiOk": "[TODO] Connected ({{stage}}, v{{version}})",
+    "apiDown": "[TODO] Cannot reach the API"
+  },
+  "content": {
+    "guides": "[TODO] Guides",
+    "categories": "[TODO] Categories",
+    "status": "[TODO] Status",
+    "updated": "[TODO] Updated",
+    "empty": "[TODO] No items yet.",
+    "statuses": {
+      "draft": "[TODO] Draft",
+      "in_review": "[TODO] In review",
+      "published": "[TODO] Published",
+      "archived": "[TODO] Archived"
+    }
+  },
+  "integrations": {
+    "title": "[TODO] Integrations",
+    "name": "[TODO] Integration",
+    "provider": "[TODO] Provider",
+    "phase": "[TODO] Phase",
+    "configured": "[TODO] Configured",
+    "notConfigured": "[TODO] Placeholder"
+  },
+  "placeholder": "[TODO] This page is a placeholder for a later phase.",
+  "devLogin": {
+    "title": "[TODO] Developer sign-in",
+    "note": "[TODO] Temporary: pick a role to call the API in development. Replaced by Better Auth (email + 2FA) in Phase 1.",
+    "role": "[TODO] Role",
+    "signIn": "[TODO] Continue"
+  }
+}

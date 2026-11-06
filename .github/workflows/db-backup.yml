@@ -1,0 +1,33 @@
+name: Weekly DB backup
+
+# Atlas M0 has no backups — dump weekly to a private R2 bucket (ADR 0002).
+on:
+  schedule:
+    - cron: '30 20 * * 0' # Sundays 02:00 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: prod
+    steps:
+      - name: Install MongoDB Database Tools
+        run: |
+          curl -fsSL https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-x86_64-100.13.0.tgz -o tools.tgz
+          tar -xzf tools.tgz && echo "$PWD/$(ls -d mongodb-database-tools-*/)bin" >> "$GITHUB_PATH"
+      - name: Dump
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_BACKUP_URI }} # read-only backup user
+        run: mongodump --uri="$MONGODB_URI" --gzip --archive="backup-$(date -u +%Y%m%dT%H%M%SZ).archive.gz"
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          aws s3 cp backup-*.archive.gz "s3://${{ vars.R2_BACKUP_BUCKET }}/mongo/" \
+            --endpoint-url "https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"

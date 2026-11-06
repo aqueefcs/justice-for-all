@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+/* Tokens mirror packages/ui-tokens. TODO: add shadcn/ui (`pnpm dlx shadcn@latest init`) for forms and tables. */
+@theme {
+  --color-navy-900: #070f2b;
+  --color-navy-800: #1b1a55;
+  --color-navy-600: #535c91;
+  --color-primary: #3b3f8f;
+  --color-accent: #f5b700;
+  --font-sans: 'Noto Sans', system-ui, sans-serif;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

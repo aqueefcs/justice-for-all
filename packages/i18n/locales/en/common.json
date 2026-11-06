@@ -1,0 +1,23 @@
+{
+  "appName": "Justice For All",
+  "tagline": "Know your rights. Get help.",
+  "disclaimer": "This is general legal information, not legal advice. For advice on your situation, talk to a lawyer.",
+  "sampleBanner": "Sample content — not yet reviewed by our lawyers.",
+  "loading": "Loading…",
+  "retry": "Try again",
+  "back": "Back",
+  "continue": "Continue",
+  "cancel": "Cancel",
+  "close": "Close",
+  "search": "Search",
+  "readAloud": "Listen",
+  "comingSoon": "Coming soon",
+  "offline": "You are offline. Saved content still works.",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "tabs": {
+    "home": "Home",
+    "library": "Library",
+    "guides": "Guides",
+    "more": "More"
+  }
+}

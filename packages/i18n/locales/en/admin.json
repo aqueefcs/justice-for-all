@@ -1,0 +1,46 @@
+{
+  "title": "Justice For All — Admin",
+  "nav": {
+    "dashboard": "Dashboard",
+    "content": "Content",
+    "review": "Review queue",
+    "lawyers": "Lawyers",
+    "users": "Users",
+    "integrations": "Integrations",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcome": "Welcome to the admin console",
+    "apiStatus": "API status",
+    "apiOk": "Connected ({{stage}}, v{{version}})",
+    "apiDown": "Cannot reach the API"
+  },
+  "content": {
+    "guides": "Guides",
+    "categories": "Categories",
+    "status": "Status",
+    "updated": "Updated",
+    "empty": "No items yet.",
+    "statuses": {
+      "draft": "Draft",
+      "in_review": "In review",
+      "published": "Published",
+      "archived": "Archived"
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "name": "Integration",
+    "provider": "Provider",
+    "phase": "Phase",
+    "configured": "Configured",
+    "notConfigured": "Placeholder"
+  },
+  "placeholder": "This page is a placeholder for a later phase.",
+  "devLogin": {
+    "title": "Developer sign-in",
+    "note": "Temporary: pick a role to call the API in development. Replaced by Better Auth (email + 2FA) in Phase 1.",
+    "role": "Role",
+    "signIn": "Continue"
+  }
+}

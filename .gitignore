@@ -4,6 +4,12 @@ dist/
 build/
 .turbo/
 coverage/
+*.tsbuildinfo
+# API Lambda bundles, local storage fallback, CDK output
+.lambda/
+.local-storage/
+cdk.out/
+cdk.context.json
 tmp/
 .temp
 .tmp

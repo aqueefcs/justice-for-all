@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      nestjs: { patterns: ['@nestjs/*'] }
+      aws-sdk: { patterns: ['@aws-sdk/*'] }
+      tanstack: { patterns: ['@tanstack/*'] }
+    ignore:
+      # Expo pins native module versions per SDK — upgrade with `npx expo install --fix` instead.
+      - dependency-name: 'expo*'
+      - dependency-name: 'react-native*'
+      - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }

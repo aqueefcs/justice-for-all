@@ -1,0 +1,37 @@
+{
+  "name": "@jfa/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mongoose schemas, indexes, seed and migrations",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean --external mongoose",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch --external mongoose",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx seed/seed.ts"
+  },
+  "dependencies": {
+    "@jfa/shared": "workspace:*",
+    "mongoose": "9.12.0"
+  },
+  "devDependencies": {
+    "@jfa/config": "workspace:*",
+    "@types/node": "26.6.6",
+    "dotenv": "18.0.9",
+    "tsup": "9.0.0",
+    "tsx": "4.23.15",
+    "typescript": "~6.0.3"
+  }
+}

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build packages and apps
+        run: pnpm build
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Lint (incl. i18n key check)
+        run: pnpm lint
+      - name: Test (API e2e uses an in-memory MongoDB replica set)
+        run: pnpm test
+      - name: API client is up to date
+        run: |
+          pnpm --filter @jfa/api openapi
+          pnpm --filter @jfa/api-client generate
+          git diff --exit-code -- apps/api/openapi.json packages/api-client/src/schema.d.ts \
+            || (echo "::error::Run 'pnpm --filter @jfa/api openapi && pnpm --filter @jfa/api-client generate' and commit" && exit 1)
+      - name: Bundle Lambda + CDK synth
+        run: |
+          node apps/api/scripts/bundle-lambda.mjs
+          pnpm --filter @jfa/infra exec cdk synth -c stage=dev -q
+      - name: Dependency audit
+        run: pnpm audit --prod --audit-level high

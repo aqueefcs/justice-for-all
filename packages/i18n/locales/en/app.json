@@ -1,0 +1,92 @@
+{
+  "onboarding": {
+    "welcome": "Welcome",
+    "chooseLanguage": "Choose your language",
+    "changeLater": "You can change this later in More → Language."
+  },
+  "home": {
+    "greeting": "Namaste!",
+    "subtitle": "What do you need help with today?",
+    "searchPlaceholder": "Search laws, guides, forms…",
+    "quickActions": "Quick help",
+    "fileFir": "File an FIR",
+    "fileGd": "Make a GD entry",
+    "makeDraft": "Make a draft",
+    "categories": "Topics",
+    "consultTitle": "Talk to a lawyer",
+    "consultSubtitle": "Low-cost video or phone consultation"
+  },
+  "library": {
+    "title": "Legal library",
+    "acts": "Acts",
+    "articles": "Explainers",
+    "sectionCount_one": "{{count}} section",
+    "sectionCount_other": "{{count}} sections",
+    "section": "Section {{number}}",
+    "oldLaw": "Earlier: {{act}} {{section}}",
+    "plainExplanation": "In simple words",
+    "source": "Source",
+    "searchPlaceholder": "Search acts and sections",
+    "noResults": "No results found.",
+    "categoryEmpty": "Nothing here yet."
+  },
+  "guides": {
+    "title": "Step-by-step guides",
+    "steps": "Steps",
+    "stepN": "Step {{n}}",
+    "checklist": "What to carry",
+    "relatedTemplates": "Make the document",
+    "links": "Useful links",
+    "type": {
+      "fir": "FIR",
+      "gd": "GD",
+      "complaint": "Complaint",
+      "rti": "RTI",
+      "drafting": "Drafting",
+      "other": "Guide"
+    }
+  },
+  "templates": {
+    "title": "Drafts & forms",
+    "fillForm": "Fill in your details",
+    "generatePdf": "Create PDF",
+    "required": "This field is required",
+    "tooLong": "Too long (max {{max}} characters)",
+    "invalidDate": "Use the format DD-MM-YYYY",
+    "pdfReady": "Your PDF is ready",
+    "share": "Share or print",
+    "privacyNote": "Your details stay on this phone. We do not upload them."
+  },
+  "comingSoon": {
+    "badge": "Coming soon",
+    "body": "We are building this. It will be available in a future update.",
+    "consult": {
+      "title": "Talk to a lawyer",
+      "body": "Book a low-cost video or phone consultation with a verified lawyer."
+    },
+    "documents": {
+      "title": "My documents",
+      "body": "Upload your papers and download drafts prepared by your lawyer."
+    },
+    "profile": {
+      "title": "My account",
+      "body": "Sign in with your phone number to save bookings and documents."
+    },
+    "lawyer": {
+      "title": "Lawyer mode",
+      "body": "For verified lawyers: manage consultations and share drafts."
+    }
+  },
+  "more": {
+    "title": "More",
+    "language": "Language",
+    "account": "Account",
+    "services": "Services",
+    "about": "About",
+    "aboutApp": "About Justice For All",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "grievance": "Grievance officer",
+    "version": "Version {{version}}"
+  }
+}

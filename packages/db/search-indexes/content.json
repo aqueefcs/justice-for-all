@@ -1,0 +1,33 @@
+{
+  "_comment": "Atlas Search index for server-side search (admin + future website). Create in Atlas UI or via the Atlas Admin API on the `guides` collection; add similar mappings for `actSections` and `articles` (M0 allows 3 search indexes in total).",
+  "name": "content",
+  "collection": "guides",
+  "definition": {
+    "mappings": {
+      "dynamic": false,
+      "fields": {
+        "status": { "type": "token" },
+        "categorySlug": { "type": "token" },
+        "translations": {
+          "type": "document",
+          "fields": {
+            "en": {
+              "type": "document",
+              "fields": {
+                "title": [{ "type": "string", "analyzer": "lucene.english" }, { "type": "autocomplete" }],
+                "summary": { "type": "string", "analyzer": "lucene.english" }
+              }
+            },
+            "hi": {
+              "type": "document",
+              "fields": {
+                "title": [{ "type": "string", "analyzer": "lucene.hindi" }, { "type": "autocomplete" }],
+                "summary": { "type": "string", "analyzer": "lucene.hindi" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

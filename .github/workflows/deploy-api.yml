@@ -1,0 +1,55 @@
+name: Deploy API (AWS)
+
+# dev deploys automatically from main; prod is manual (workflow_dispatch → stage=prod).
+on:
+  push:
+    branches: [main]
+    paths: ['apps/api/**', 'packages/**', 'infra/**', 'pnpm-lock.yaml']
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage to deploy
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+concurrency:
+  group: deploy-api-${{ inputs.stage || 'dev' }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # GitHub OIDC → AWS (no long-lived keys)
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.stage || 'dev' }}
+    env:
+      STAGE: ${{ inputs.stage || 'dev' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter "@jfa/api..." build
+      - run: node apps/api/scripts/bundle-lambda.mjs
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - name: CDK deploy
+        run: >
+          pnpm --filter @jfa/infra exec cdk deploy --all --require-approval never
+          -c stage=$STAGE
+          -c alertEmail=${{ vars.ALERT_EMAIL }}
+          -c corsOrigins=${{ vars.CORS_ORIGINS }}
+          -c contentCdnUrl=${{ vars.CONTENT_CDN_URL }}
+      - name: Smoke test through Cloudflare
+        if: ${{ vars.API_URL != '' }}
+        run: |
+          curl -fsS "${{ vars.API_URL }}/v1/health"

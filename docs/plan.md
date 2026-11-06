@@ -189,7 +189,7 @@ Offline-first content, a small APK, low-end Android first, large fonts, icon-led
 |---|---|---|---|
 | Monorepo | **pnpm + Turborepo** | Shared types, schemas and i18n | — |
 | Language | **TypeScript (strict)** everywhere | Matches team skills | — |
-| Mobile | **Expo (latest stable SDK) + expo-router**, NativeWind, TanStack Query, react-hook-form + Zod, i18next + expo-localization, expo-sqlite (FTS5), expo-print, expo-speech, expo-secure-store, MMKV | Android, iOS and web from one codebase | — |
+| Mobile | **Expo SDK 58 + expo-router**, StyleSheet + shared design tokens (kept lean, no styling library), i18next + expo-localization, expo-sqlite (kv-store; FTS5 later), expo-print, expo-speech, expo-secure-store; TanStack Query + api-client added in Phase 2 | Android, iOS and web from one codebase | — |
 | APK sharing | **EAS Build** internal-distribution APK (link/QR) plus **EAS Update** OTA for JS changes; `eas build --local` when the free quota runs out | Free plan has limited builds per month; local builds are unlimited | Frequent builds → EAS Starter |
 | API | **NestJS 11 + Fastify on Node 22**, `@nestjs/mongoose`, `nestjs-zod`, `@nestjs/swagger`, `@nestjs/throttler`, Better Auth (MongoDB adapter, NestJS integration) | Structured modules for a growing team; OpenAPI → typed client | — |
 | API hosting | **AWS Lambda, ap-south-1 Mumbai** (Node 22 arm64, Function URL, Lambda Web Adapter) | Always free: 1M requests + 400k GB-s/month; scales to zero; same region as Atlas | Cold starts hurt → provisioned concurrency; sustained traffic/WebSockets → ECS Fargate |

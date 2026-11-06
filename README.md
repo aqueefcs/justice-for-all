@@ -5,6 +5,8 @@ A digital legal-help platform for ordinary people in India. It offers plain-lang
 > Legal information, not legal advice.
 
 ## Docs
+- [Getting started (run it locally, build an APK, deploy to AWS)](docs/getting-started.md)
+- [Integrations: every tool, its placeholder and how to switch it on](docs/integrations.md)
 - [Plan: product, architecture, stack, roadmap](docs/plan.md)
 - [Architecture Decision Records](docs/adr/README.md)
 - [Compliance checklist](docs/compliance.md)
@@ -19,4 +21,10 @@ A digital legal-help platform for ordinary people in India. It offers plain-lang
 - pnpm + Turborepo monorepo
 
 ## Status
-Phase 0: foundations. See the roadmap in [docs/plan.md](docs/plan.md).
+Phase 0 is done: the monorepo, API, mobile app, admin console, AWS infrastructure and CI are in place, and every integration has a placeholder. Phase 1 (MVP content) is next. See the roadmap in [docs/plan.md](docs/plan.md).
+
+```bash
+pnpm install && pnpm build && pnpm db:up
+pnpm --filter @jfa/api dev      # API + Swagger at http://localhost:3000/docs
+pnpm --filter @jfa/mobile start # mobile app (Expo)
+```

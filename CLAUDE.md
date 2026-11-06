@@ -9,42 +9,52 @@ The full plan is in [docs/plan.md](docs/plan.md). Decisions are recorded in [doc
 
 ## Monorepo map (pnpm + Turborepo, TypeScript strict everywhere)
 ```
-apps/mobile      Expo + expo-router app (citizen + lawyer modes in ONE app)
-apps/admin       Vite + React + TanStack Router + shadcn/ui admin & content CMS
-apps/api         NestJS 11 (Fastify adapter) REST API, Swagger at /docs
+apps/mobile      Expo SDK 58 + expo-router app (citizen + lawyer modes in ONE app)
+apps/admin       Vite + React + TanStack Router + Tailwind admin & content CMS
+apps/api         NestJS 11 (Fastify adapter) REST API, Swagger at /docs; src/worker.ts = SQS worker
 apps/web         (Phase 4) public SEO website
-packages/db      Mongoose schemas, indexes, seeds, migrate-mongo scripts
+packages/db      Mongoose schemas (plain, registered via MODEL_DEFINITIONS), indexes, seed
 packages/shared  Zod schemas (single source of truth for DTOs), roles/permissions, utils
 packages/api-client  typed client generated from the API OpenAPI spec — never hand-edit
 packages/i18n    locales/<lang>/*.json UI strings + typed keys
 packages/ui-tokens  colours, spacing, typography (navy/glass theme)
 packages/config  shared tsconfig / eslint / prettier
 infra/           AWS CDK app (Lambda API, SQS workers, scheduler, alarms, budgets)
-docs/            plan, ADRs, compliance, content style guide
+docs/            plan, ADRs, compliance, integrations, getting-started
 ```
+All workspace packages are named `@jfa/<folder>` (e.g. `@jfa/api`, `@jfa/mobile`).
 
 ## Stack
-- Expo (latest stable SDK), NativeWind, TanStack Query, react-hook-form + Zod, i18next, expo-sqlite (FTS5), expo-print, expo-secure-store
+- Expo SDK 58 (RN 0.88, React 19.3), StyleSheet + `@jfa/ui-tokens` (no styling library), i18next, expo-sqlite (kv-store now, FTS5 later), expo-print, expo-speech, expo-secure-store
 - NestJS + Fastify, `@nestjs/mongoose`, `nestjs-zod`, `@nestjs/swagger`, `@nestjs/throttler`, Better Auth
 - MongoDB Atlas (M0, Mumbai) with Atlas Search
 - **AWS (ap-south-1 Mumbai):** API on Lambda (Function URL + Lambda Web Adapter), SQS + worker Lambdas, EventBridge Scheduler, SES, SSM Parameter Store, CloudWatch; infrastructure as code with AWS CDK in `infra/`
 - Cloudflare: DNS/WAF in front of the API; R2 for files and content packs; Pages for the admin/web
 - EAS Build/Update to share APKs
 
-## Commands (once scaffolded)
+## Commands
 ```
-pnpm install
-pnpm dev                     # all apps via turbo
-pnpm --filter api dev        # API only  → http://localhost:3000/docs
-pnpm --filter mobile start   # Expo dev server
-pnpm --filter admin dev
-pnpm lint && pnpm typecheck && pnpm test
-pnpm --filter api-client generate   # regenerate the typed client after API changes
-pnpm --filter db seed
-pnpm --filter infra cdk diff -c stage=dev     # preview AWS changes
-pnpm --filter infra cdk deploy -c stage=dev   # deploy (prod deploys only from CI on main)
+pnpm install && pnpm build          # build shared packages first (apps import their dist/)
+pnpm db:up                          # local MongoDB replica set (Docker)
+pnpm --filter @jfa/api dev          # API → http://localhost:3000/docs  (needs apps/api/.env)
+pnpm --filter @jfa/mobile start     # Expo dev server
+pnpm --filter @jfa/admin dev        # http://localhost:5173
+pnpm typecheck && pnpm lint && pnpm test
+pnpm --filter @jfa/db seed          # SAMPLE content
+# after API changes: rebuild, export spec, regenerate client (CI fails if stale)
+pnpm --filter @jfa/api build && pnpm --filter @jfa/api openapi && pnpm --filter @jfa/api-client generate
+pnpm --filter @jfa/api bundle:lambda                      # Lambda artifacts in apps/api/.lambda/
+pnpm --filter @jfa/infra exec cdk diff -c stage=dev       # preview AWS changes (prod deploys only from CI)
 ```
-Requires Node 22 LTS and pnpm 9+.
+Requires Node 22.13+ (local: Node 26; Lambda runtime: Node 24) and pnpm 9+. On Windows, edit files with the editor tools, not PowerShell `Set-Content` (it corrupts UTF-8).
+
+## Gotchas
+- Shared packages are consumed from `dist/` — run `pnpm build` (or `pnpm --filter <pkg> dev`) after changing `packages/*`.
+- Mongoose `sanitizeFilter` is on: operators you build server-side must be wrapped in `trusted({...})`.
+- `ConfigModule` validates env when `AppModule` is imported — set env (or load SSM) **before** importing it (see `main.ts`, `worker.ts`, tests).
+- Lambda bundles are built from `dist/` (tsc keeps decorator metadata; esbuild alone would not).
+- Local dev auth: `x-dev-role: <role>` header works only with `STAGE=local|test` and `ALLOW_DEV_AUTH=true`.
+- Integrations: see docs/integrations.md — each has a placeholder service with a TODO; status at `GET /v1/integrations`.
 
 ## Non-negotiable rules
 1. **Every user-facing string goes through i18n** (`t('key')`), in the mobile app and the admin alike. Add the key to `packages/i18n/locales/en/*.json`. Never hard-code display text. Content (acts, guides, templates) is stored per locale in `translations: { en: {...}, hi: {...} }`.

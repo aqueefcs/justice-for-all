@@ -1,0 +1,11 @@
+{
+  "extends": "@jfa/config/tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node"]
+  },
+  "include": ["bin", "lib"]
+}

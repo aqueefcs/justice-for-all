@@ -1,0 +1,92 @@
+{
+  "onboarding": {
+    "welcome": "स्वागत है",
+    "chooseLanguage": "अपनी भाषा चुनें",
+    "changeLater": "आप इसे बाद में और → भाषा में बदल सकते हैं।"
+  },
+  "home": {
+    "greeting": "नमस्ते!",
+    "subtitle": "आज आपको किस चीज़ में मदद चाहिए?",
+    "searchPlaceholder": "कानून, गाइड, फ़ॉर्म खोजें…",
+    "quickActions": "तुरंत मदद",
+    "fileFir": "FIR दर्ज करें",
+    "fileGd": "GD दर्ज कराएं",
+    "makeDraft": "ड्राफ्ट बनाएं",
+    "categories": "विषय",
+    "consultTitle": "वकील से बात करें",
+    "consultSubtitle": "कम खर्च में वीडियो या फ़ोन परामर्श"
+  },
+  "library": {
+    "title": "कानूनी लाइब्रेरी",
+    "acts": "अधिनियम",
+    "articles": "सरल जानकारी",
+    "sectionCount_one": "{{count}} धारा",
+    "sectionCount_other": "{{count}} धाराएं",
+    "section": "धारा {{number}}",
+    "oldLaw": "पहले: {{act}} {{section}}",
+    "plainExplanation": "आसान शब्दों में",
+    "source": "स्रोत",
+    "searchPlaceholder": "अधिनियम और धाराएं खोजें",
+    "noResults": "कोई परिणाम नहीं मिला।",
+    "categoryEmpty": "यहां अभी कुछ नहीं है।"
+  },
+  "guides": {
+    "title": "चरण-दर-चरण गाइड",
+    "steps": "चरण",
+    "stepN": "चरण {{n}}",
+    "checklist": "साथ क्या ले जाएं",
+    "relatedTemplates": "दस्तावेज़ बनाएं",
+    "links": "उपयोगी लिंक",
+    "type": {
+      "fir": "FIR",
+      "gd": "GD",
+      "complaint": "शिकायत",
+      "rti": "RTI",
+      "drafting": "ड्राफ्टिंग",
+      "other": "गाइड"
+    }
+  },
+  "templates": {
+    "title": "ड्राफ्ट और फ़ॉर्म",
+    "fillForm": "अपनी जानकारी भरें",
+    "generatePdf": "PDF बनाएं",
+    "required": "यह जानकारी ज़रूरी है",
+    "tooLong": "बहुत लंबा है (अधिकतम {{max}} अक्षर)",
+    "invalidDate": "DD-MM-YYYY प्रारूप का उपयोग करें",
+    "pdfReady": "आपकी PDF तैयार है",
+    "share": "शेयर या प्रिंट करें",
+    "privacyNote": "आपकी जानकारी इसी फ़ोन में रहती है। हम इसे अपलोड नहीं करते।"
+  },
+  "comingSoon": {
+    "badge": "जल्द आ रहा है",
+    "body": "हम इस पर काम कर रहे हैं। यह आने वाले अपडेट में उपलब्ध होगा।",
+    "consult": {
+      "title": "वकील से बात करें",
+      "body": "सत्यापित वकील के साथ कम खर्च में वीडियो या फ़ोन परामर्श बुक करें।"
+    },
+    "documents": {
+      "title": "मेरे दस्तावेज़",
+      "body": "अपने कागज़ अपलोड करें और वकील द्वारा तैयार ड्राफ्ट डाउनलोड करें।"
+    },
+    "profile": {
+      "title": "मेरा खाता",
+      "body": "बुकिंग और दस्तावेज़ सहेजने के लिए अपने फ़ोन नंबर से साइन इन करें।"
+    },
+    "lawyer": {
+      "title": "वकील मोड",
+      "body": "सत्यापित वकीलों के लिए: परामर्श प्रबंधित करें और ड्राफ्ट साझा करें।"
+    }
+  },
+  "more": {
+    "title": "और",
+    "language": "भाषा",
+    "account": "खाता",
+    "services": "सेवाएं",
+    "about": "जानकारी",
+    "aboutApp": "जस्टिस फॉर ऑल के बारे में",
+    "privacy": "गोपनीयता नीति",
+    "terms": "उपयोग की शर्तें",
+    "grievance": "शिकायत अधिकारी",
+    "version": "संस्करण {{version}}"
+  }
+}
