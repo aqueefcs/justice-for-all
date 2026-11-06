@@ -1,0 +1,30 @@
+# Security & privacy
+
+- Secrets:
+  - Never commit secrets. Use `.env` (gitignored) and keep `.env.example` up to date.
+  - Production secrets live in AWS SSM Parameter Store (SecureString). CI secrets live in GitHub Actions secrets.
+  - CI reaches AWS only through GitHub OIDC role assumption. Never create long-lived IAM access keys.
+- Input:
+  - Validate every request with Zod.
+  - Reject unknown fields and `$`-prefixed keys.
+  - Keep Mongoose `sanitizeFilter` enabled.
+- AuthN/AuthZ:
+  - Default-deny: routes are private unless marked `@Public()`.
+  - Check the role in a guard and resource ownership in the service.
+  - Staff (reviewer/admin) accounts require 2FA.
+- Sessions: httpOnly, Secure, SameSite cookies on the web; `expo-secure-store` on mobile. Short expiry with rotation.
+- Files:
+  - private R2 bucket
+  - upload via presigned PUT with content-type and size limits
+  - download via short-lived signed GET
+  - malware scan before a file becomes downloadable
+  - never expose bucket keys
+- Rate limit auth/OTP and search endpoints. CORS uses an explicit allowlist.
+- Personal data (DPDP Act 2023 / Rules 2025):
+  - Collect the minimum.
+  - Record consent (purpose + version) before collecting.
+  - Support export and deletion.
+  - Never put PII in logs, analytics events, URLs or error reports (scrub it in Sentry).
+- Legal content data (case details, documents) is sensitive. Encrypt in transit, rely on Atlas encryption at rest, and keep access audit-logged.
+- Dependencies: pin versions; no unmaintained packages; run `pnpm audit` in CI.
+- Never weaken these rules to "make it work". Ask instead.

@@ -1,8 +1,29 @@
-# Nestjs specific
-/dist
-/node_modules
-/build
-/tmp
+# Dependencies & builds
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+tmp/
+.temp
+.tmp
+
+# Expo / React Native
+.expo/
+web-build/
+android/
+ios/
+*.apk
+*.aab
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# Vite / Next
+.next/
+out/
 
 # Logs
 logs
@@ -11,14 +32,18 @@ npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
 
-# dotenv environment variable files
+# Environment (keep .env.example committed)
 .env
-.env.development
-.env.test
-.env.production
+.env.*
+!.env.example
 
-# temp directory
-.temp
-.tmp
+# OS / editors
+.DS_Store
+Thumbs.db
+
+# Claude Code: share rules & skills, keep personal settings local
+.claude/settings.local.json
+
+# Personal notes
+idea.txt
