@@ -20,7 +20,9 @@ import { env } from '../lib/env';
 const cacheKey = (locale: Locale) => `pack.${locale}`;
 
 export function loadCachedPack(locale: Locale): ContentPack {
-  return readCached(locale) ?? readCached('en') ?? SAMPLE_PACK_EN;
+  const cached = readCached(locale) ?? readCached('en');
+  // A newer app build can ship newer bundled content than an old cached download.
+  return cached && cached.version >= SAMPLE_PACK_EN.version ? cached : SAMPLE_PACK_EN;
 }
 
 function readCached(locale: Locale): ContentPack | undefined {

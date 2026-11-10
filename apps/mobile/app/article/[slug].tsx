@@ -10,7 +10,8 @@ import { useContentLookup } from '../../src/content/content-context';
  */
 function htmlToParagraphs(html: string): string[] {
   return html
-    .replace(/<\/(p|h\d|li|div)>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<\/(p|h\d|li|div|ul|ol)>/gi, '\n')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
