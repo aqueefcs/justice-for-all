@@ -9,7 +9,8 @@
 ```bash
 pnpm install
 pnpm build                       # builds shared packages (and apps)
-pnpm db:up                       # local MongoDB replica set on :27017
+pnpm db:local                    # local MongoDB replica set on :27017 (no Docker; data in .data/)
+                                 # …or `pnpm db:up` if you prefer Docker
 cp apps/api/.env.example apps/api/.env
 pnpm --filter @jfa/db seed       # SAMPLE content (marked isSample)
 pnpm --filter @jfa/api dev       # http://localhost:3000/docs
@@ -34,6 +35,18 @@ Mobile app:
 pnpm --filter @jfa/mobile start  # scan the QR code with Expo Go, or press "a" for an Android emulator
 ```
 The app runs fully offline on the bundled SAMPLE pack. To use real packs, set `EXPO_PUBLIC_CONTENT_CDN_URL`.
+
+### On your phone (Expo Go, same Wi-Fi as the PC)
+1. Find the PC's Wi-Fi IP (`ipconfig` → Wi-Fi → IPv4, e.g. `192.168.0.247`) and put it in
+   `apps/api/.env` (`CONTENT_CDN_URL=http://<ip>:8090`) and `apps/mobile/.env`
+   (`EXPO_PUBLIC_CONTENT_CDN_URL=http://<ip>:8090`).
+2. Run: `pnpm db:local`, `pnpm --filter @jfa/api start`, `pnpm --filter @jfa/api cdn:local`,
+   then `cd apps/mobile && npx expo start --lan`.
+3. Install **Expo Go** (Play Store), then scan the QR code or use "Enter URL manually": `exp://<ip>:8081`.
+4. End-to-end check: publish packs (`POST /v1/publishing/packs` as `reviewer`), then reopen the app
+   and it downloads the new pack from the local CDN.
+If the phone can't connect, allow Node.js through Windows Firewall for your network profile, and
+make sure the phone isn't on a guest network that isolates clients.
 
 ## Share an APK with partners
 See `.claude/skills/build-apk/SKILL.md`. In short:

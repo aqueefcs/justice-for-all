@@ -13,6 +13,7 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "db:local": "pnpm --filter @jfa/api db:local",
     "db:up": "docker compose up -d mongo",
     "db:down": "docker compose down"
   },

@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "openapi": "node scripts/export-openapi.mjs",
+    "db:local": "node scripts/dev-mongo.mjs",
+    "cdn:local": "node scripts/serve-local-storage.mjs",
     "bundle:lambda": "nest build && node scripts/bundle-lambda.mjs"
   },
   "dependencies": {

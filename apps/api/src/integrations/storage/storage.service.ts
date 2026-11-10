@@ -44,7 +44,9 @@ export class StorageService implements Integration {
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, body);
       this.logger.warn(`R2 not configured — wrote ${key} to ${path}`);
-      return { url: path };
+      // With the local CDN (scripts/serve-local-storage.mjs) phones can fetch it over Wi-Fi.
+      const cdn = this.config.get('CONTENT_CDN_URL');
+      return { url: cdn ? `${cdn.replace(/\/$/, '')}/${key}` : path };
     }
     await this.client.send(
       new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType, CacheControl: cacheControl }),
