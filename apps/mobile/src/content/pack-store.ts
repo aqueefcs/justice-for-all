@@ -1,4 +1,4 @@
-import Storage from 'expo-sqlite/kv-store';
+import { storage as Storage } from '../lib/storage';
 import {
   ContentPackSchema,
   PackManifestSchema,

@@ -1,8 +1,8 @@
-import Storage from 'expo-sqlite/kv-store';
 import { isLocale, type Locale } from '@jfa/shared';
+import { storage as Storage } from './storage';
 
 /**
- * Non-sensitive user preferences (on-device SQLite key-value store).
+ * Non-sensitive user preferences (on-device key-value store, see ./storage).
  * Never store personal data or tokens here — tokens go in expo-secure-store.
  */
 const KEYS = { locale: 'pref.locale' } as const;

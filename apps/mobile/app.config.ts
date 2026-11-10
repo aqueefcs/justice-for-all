@@ -5,11 +5,13 @@ import type { ExpoConfig } from 'expo/config';
  * or the `env` block of the EAS build profile in eas.json.
  * TODO: confirm the Android package name / domain before the first Play Store upload — it can't change later.
  */
-const easProjectId = process.env.EAS_PROJECT_ID; // set after `eas init`
+/** EAS project @aqueef07/justice-for-all (public identifier, safe to commit). */
+const easProjectId = process.env.EAS_PROJECT_ID ?? '0c146a4a-c1a8-489d-87c2-0862ccf6442a';
 
 const config: ExpoConfig = {
   name: 'Justice For All',
   slug: 'justice-for-all',
+  owner: 'aqueef07',
   scheme: 'jfa',
   version: '0.1.0',
   orientation: 'portrait',

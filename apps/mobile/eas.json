@@ -16,9 +16,7 @@
       "android": { "buildType": "apk" },
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_STAGE": "dev",
-        "EXPO_PUBLIC_API_URL": "",
-        "EXPO_PUBLIC_CONTENT_CDN_URL": ""
+        "EXPO_PUBLIC_STAGE": "dev"
       }
     },
     "production": {
@@ -26,9 +24,7 @@
       "android": { "buildType": "app-bundle" },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_STAGE": "prod",
-        "EXPO_PUBLIC_API_URL": "",
-        "EXPO_PUBLIC_CONTENT_CDN_URL": ""
+        "EXPO_PUBLIC_STAGE": "prod"
       }
     }
   },
