@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import * as Speech from 'expo-speech';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, radius, spacing, touchTarget, typography } from '@jfa/ui-tokens';
+import { useTranslation } from 'react-i18next';
+import { colors, iconSize, radius } from '@jfa/ui-tokens';
 import { currentLocale } from '../lib/i18n';
 
 const SPEECH_LANG = { en: 'en-IN', hi: 'hi-IN' } as const;
 
-/** Reads text aloud with the device's text-to-speech (helps low-literacy users). Works offline. */
-export function ReadAloud({ text, label }: { text: string; label: string }) {
+/**
+ * Square "Listen" button for docks: reads text aloud with the device's text-to-speech
+ * (helps low-literacy and elderly users). Works offline.
+ */
+export function ReadAloud({ text }: { text: string }) {
+  const { t } = useTranslation();
   const [speaking, setSpeaking] = useState(false);
   useEffect(() => () => void Speech.stop(), []);
 
@@ -28,25 +33,28 @@ export function ReadAloud({ text, label }: { text: string; label: string }) {
   };
 
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={toggle} style={styles.button}>
-      <Ionicons name={speaking ? 'stop-circle' : 'volume-high'} size={22} color={colors.primary} />
-      <Text style={styles.text}>{label}</Text>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={speaking ? t('stop') : t('readAloud')}
+      accessibilityState={{ selected: speaking }}
+      onPress={toggle}
+      style={({ pressed }) => [styles.button, speaking && styles.active, pressed && { backgroundColor: colors.surfacePressed }]}
+    >
+      <Ionicons name={speaking ? 'stop' : 'volume-high-outline'} size={iconSize.md} color={speaking ? colors.accentText : colors.text} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: touchTarget,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
+    width: 56,
+    height: 56,
+    borderRadius: radius.lg,
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.line,
     backgroundColor: colors.surface,
   },
-  text: { fontSize: typography.body, color: colors.primary, fontWeight: '600' },
+  active: { backgroundColor: colors.accentSoft, borderColor: colors.accentBorder },
 });

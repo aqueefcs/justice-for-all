@@ -1,6 +1,6 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Body, EmptyState, Heading, LegalDisclaimer, SampleBanner, Screen } from '../../src/components/ui';
+import { Button, EmptyState, LegalDisclaimer, SampleBanner, Screen, TopBar, Txt } from '../../src/components/ui';
 import { ReadAloud } from '../../src/components/read-aloud';
 import { useContentLookup } from '../../src/content/content-context';
 
@@ -23,20 +23,36 @@ function htmlToParagraphs(html: string): string[] {
 export default function ArticleScreen() {
   const { t } = useTranslation();
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { article } = useContentLookup();
+  const { article, category } = useContentLookup();
   const a = article(slug);
-  if (!a) return <EmptyState text={t('app:library.noResults')} />;
+
+  if (!a) {
+    return (
+      <Screen topBar={<TopBar />}>
+        <EmptyState text={t('app:library.noResults')} />
+      </Screen>
+    );
+  }
   const paragraphs = htmlToParagraphs(a.body);
 
   return (
-    <Screen>
-      <Stack.Screen options={{ title: t('app:library.articles') }} />
+    <Screen
+      topBar={<TopBar title={category(a.categorySlug)?.title ?? t('app:library.articles')} />}
+      dock={
+        <>
+          <ReadAloud text={[a.title, ...paragraphs].join('. ')} />
+          <Button icon="videocam" label={t('app:guides.getHelp')} onPress={() => router.push('/coming-soon/consult')} />
+        </>
+      }
+    >
+      <Txt variant="eyebrow">{t('app:library.articles')}</Txt>
+      <Txt variant="h1">{a.title}</Txt>
+      <Txt variant="muted">{a.summary}</Txt>
       <SampleBanner />
-      <Heading>{a.title}</Heading>
-      <Body muted>{a.summary}</Body>
-      <ReadAloud text={[a.title, ...paragraphs].join('. ')} label={t('readAloud')} />
       {paragraphs.map((p, i) => (
-        <Body key={i}>{p}</Body>
+        <Txt key={i} style={{ fontSize: 17, lineHeight: 27 }}>
+          {p}
+        </Txt>
       ))}
       <LegalDisclaimer />
     </Screen>

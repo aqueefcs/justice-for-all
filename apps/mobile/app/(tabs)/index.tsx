@@ -1,92 +1,180 @@
 import { router, type Href } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
-import { colors, radius, spacing, touchTarget, typography } from '@jfa/ui-tokens';
-import { Heading, LegalDisclaimer, ListItem, SampleBanner, Screen, SectionTitle, Body, type IconName } from '../../src/components/ui';
+import { LOCALE_NATIVE_NAMES } from '@jfa/shared';
+import { colors, fonts, gradients, radius, spacing } from '@jfa/ui-tokens';
+import {
+  Button,
+  LegalDisclaimer,
+  ListItem,
+  Row,
+  SampleBanner,
+  Screen,
+  SearchBar,
+  Section,
+  Tile,
+  Txt,
+  type IconName,
+} from '../../src/components/ui';
 import { useContentLookup } from '../../src/content/content-context';
+import { currentLocale } from '../../src/lib/i18n';
+
+/** National helplines (India). Tapping opens the phone dialer. */
+const EMERGENCY = [
+  { number: '112', key: 'all' },
+  { number: '181', key: 'women' },
+  { number: '1930', key: 'cyber' },
+  { number: '15100', key: 'legalAid' },
+] as const;
 
 export default function Home() {
   const { t } = useTranslation();
-  const { pack, firstGuideOfType } = useContentLookup();
+  const { firstGuideOfType, guide } = useContentLookup();
   const fir = firstGuideOfType('fir');
   const gd = firstGuideOfType('gd');
+  const guideHref = (slug?: string): Href => (slug && guide(slug) ? `/guide/${slug}` : '/(tabs)/learn');
 
-  const quick: { label: string; icon: IconName; href: Href }[] = [
-    { label: t('app:home.fileFir'), icon: 'document-text', href: fir ? `/guide/${fir.slug}` : '/(tabs)/guides' },
-    { label: t('app:home.fileGd'), icon: 'clipboard', href: gd ? `/guide/${gd.slug}` : '/(tabs)/guides' },
-    { label: t('app:home.makeDraft'), icon: 'create', href: '/(tabs)/guides' },
+  const tiles: { key: string; icon: IconName; href: Href; hot?: boolean; soon?: boolean }[] = [
+    { key: 'fir', icon: 'shield-checkmark-outline', href: guideHref(fir?.slug) },
+    { key: 'gd', icon: 'journal-outline', href: guideHref(gd?.slug) },
+    { key: 'draft', icon: 'create-outline', href: { pathname: '/(tabs)/learn', params: { tab: 'drafts' } } },
+    { key: 'rights', icon: 'library-outline', href: { pathname: '/(tabs)/learn', params: { tab: 'laws' } } },
+    { key: 'lawyer', icon: 'videocam', href: '/coming-soon/consult', hot: true, soon: true },
+    { key: 'ask', icon: 'sparkles-outline', href: '/(tabs)/ask', soon: true },
+  ];
+
+  // UI shortcuts into existing content (not legal content themselves).
+  const situations: { key: string; href: Href }[] = [
+    { key: 'police', href: guideHref(fir?.slug) },
+    { key: 'landlord', href: '/category/property' },
+    { key: 'wages', href: '/category/work' },
+    { key: 'family', href: '/category/family' },
+    { key: 'lostDocs', href: guideHref(gd?.slug) },
   ];
 
   return (
     <Screen>
+      {/* Header */}
+      <Row style={{ marginTop: spacing.sm }}>
+        <LinearGradient colors={gradients.accent} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
+          <Ionicons name="scale" size={22} color={colors.textOnAccent} />
+        </LinearGradient>
+        <View style={{ flex: 1 }}>
+          <Txt variant="label">{t('app:home.greeting')}</Txt>
+          <Txt variant="bodyStrong">{t('appName')}</Txt>
+        </View>
+        <Pressable
+          onPress={() => router.push('/language')}
+          accessibilityRole="button"
+          accessibilityLabel={`${t('app:more.language')}: ${LOCALE_NATIVE_NAMES[currentLocale()]}`}
+          style={({ pressed }) => [styles.langButton, pressed && { backgroundColor: colors.surfacePressed }]}
+        >
+          <Ionicons name="language" size={18} color={colors.accentText} />
+          <Text style={styles.langText}>{currentLocale().toUpperCase()}</Text>
+        </Pressable>
+      </Row>
+
+      {/* Hero */}
+      <View style={{ marginTop: spacing.md }}>
+        <Txt variant="h1">{t('app:home.heroLine1')}</Txt>
+        <Txt variant="h1" accent>
+          {t('app:home.heroLine2')}
+        </Txt>
+      </View>
+      <SearchBar placeholder={t('app:home.searchPlaceholder')} onPress={() => router.push('/search')} />
       <SampleBanner />
-      <Heading>{t('app:home.greeting')}</Heading>
-      <Body muted>{t('app:home.subtitle')}</Body>
 
-      <Pressable accessibilityRole="search" onPress={() => router.push('/search')} style={styles.search}>
-        <Ionicons name="search" size={20} color={colors.textMuted} />
-        <Text style={styles.searchText}>{t('app:home.searchPlaceholder')}</Text>
-      </Pressable>
-
-      <SectionTitle>{t('app:home.quickActions')}</SectionTitle>
-      <View style={styles.quickRow}>
-        {quick.map((q) => (
-          <Pressable key={q.label} accessibilityRole="button" onPress={() => router.push(q.href)} style={styles.quick}>
-            <Ionicons name={q.icon} size={28} color={colors.textOnDark} />
-            <Text style={styles.quickText}>{q.label}</Text>
-          </Pressable>
+      {/* Services grid */}
+      <View style={styles.grid}>
+        {tiles.map((tile) => (
+          <Tile
+            key={tile.key}
+            icon={tile.icon}
+            hot={tile.hot}
+            title={t(`app:home.tiles.${tile.key}.title`)}
+            subtitle={t(`app:home.tiles.${tile.key}.sub`)}
+            badge={tile.soon ? t('comingSoon') : undefined}
+            onPress={() => router.push(tile.href)}
+          />
         ))}
       </View>
 
-      <SectionTitle>{t('app:home.categories')}</SectionTitle>
-      {pack.categories.map((c) => (
-        <ListItem
-          key={c.slug}
-          title={c.title}
-          subtitle={c.description}
-          icon={c.icon as IconName}
-          onPress={() => router.push(`/category/${c.slug}`)}
-        />
-      ))}
+      {/* Start from what happened */}
+      <Section title={t('app:home.happenedTitle')}>
+        <Txt variant="muted">{t('app:home.happenedSub')}</Txt>
+        {situations.map((s) => (
+          <ListItem key={s.key} title={t(`app:home.situations.${s.key}`)} trailingIcon="arrow-forward" onPress={() => router.push(s.href)} />
+        ))}
+      </Section>
 
-      <SectionTitle>{t('app:home.consultTitle')}</SectionTitle>
-      <ListItem
-        title={t('app:home.consultTitle')}
-        subtitle={t('app:home.consultSubtitle')}
-        icon="videocam"
-        badge={t('comingSoon')}
-        onPress={() => router.push('/coming-soon/consult')}
+      {/* Emergency numbers */}
+      <Section title={t('app:home.emergencyTitle')}>
+        <View style={styles.emergencyRow}>
+          {EMERGENCY.map((e) => {
+            const label = t(`app:home.emergency.${e.key}`);
+            return (
+              <Pressable
+                key={e.number}
+                onPress={() => void Linking.openURL(`tel:${e.number}`)}
+                accessibilityRole="button"
+                accessibilityLabel={t('app:home.callA11y', { number: e.number, label })}
+                style={({ pressed }) => [styles.emergency, pressed && { backgroundColor: colors.surfacePressed }]}
+              >
+                <Row gap={spacing.xs}>
+                  <Ionicons name="call" size={14} color={colors.accentText} />
+                  <Text style={styles.emergencyNumber}>{e.number}</Text>
+                </Row>
+                <Txt variant="label" numberOfLines={2}>
+                  {label}
+                </Txt>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Section>
+
+      <Button
+        variant="secondary"
+        icon="library-outline"
+        label={t('app:home.browseLibrary')}
+        onPress={() => router.push({ pathname: '/(tabs)/learn', params: { tab: 'laws' } })}
+        style={{ marginTop: spacing.lg }}
       />
-
       <LegalDisclaimer />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  search: {
-    minHeight: touchTarget,
+  logo: { width: 44, height: 44, borderRadius: radius.sm + 2, alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px -8px ${colors.accentGlow}` },
+  langButton: {
+    minHeight: 48,
+    minWidth: 64,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  searchText: { fontSize: typography.body, color: colors.textMuted },
-  quickRow: { flexDirection: 'row', gap: spacing.sm },
-  quick: {
-    flex: 1,
-    minHeight: 96,
-    backgroundColor: colors.navy800,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
+    gap: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
   },
-  quickText: { color: colors.textOnDark, fontSize: typography.caption, fontWeight: '700', textAlign: 'center' },
+  langText: { fontFamily: fonts.bodySemibold, fontSize: 14, color: colors.text },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.xs },
+  emergencyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  emergency: {
+    flexBasis: '22%',
+    flexGrow: 1,
+    minHeight: 76,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    gap: spacing.xs,
+  },
+  emergencyNumber: { fontFamily: fonts.headingBold, fontSize: 18, color: colors.text },
 });

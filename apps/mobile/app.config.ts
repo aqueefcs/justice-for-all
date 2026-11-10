@@ -13,7 +13,8 @@ const config: ExpoConfig = {
   scheme: 'jfa',
   version: '0.1.0',
   orientation: 'portrait',
-  userInterfaceStyle: 'light',
+  userInterfaceStyle: 'dark',
+  backgroundColor: '#090A10',
   // TODO: add ./assets/icon.png, adaptive-icon.png and splash-icon.png (1024×1024) from the design team.
   android: {
     package: 'in.justiceforall.app',
@@ -28,7 +29,8 @@ const config: ExpoConfig = {
     'expo-localization',
     'expo-sqlite',
     'expo-secure-store',
-    ['expo-splash-screen', { backgroundColor: '#070F2B' }],
+    'expo-font',
+    ['expo-splash-screen', { backgroundColor: '#090A10' }],
   ],
   experiments: { typedRoutes: true },
   runtimeVersion: { policy: 'appVersion' },

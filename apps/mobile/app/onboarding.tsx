@@ -1,64 +1,90 @@
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
-import { LOCALES, LOCALE_NATIVE_NAMES } from '@jfa/shared';
-import { colors, radius, spacing, touchTarget, typography } from '@jfa/ui-tokens';
+import { LOCALES, LOCALE_NATIVE_NAMES, type Locale } from '@jfa/shared';
+import { colors, fonts, gradients, radius, spacing } from '@jfa/ui-tokens';
+import { Button, Row, Screen, Txt } from '../src/components/ui';
 import { changeLanguage, currentLocale } from '../src/lib/i18n';
+
+/** English names under each native name, so helpers can guide someone else. */
+const ENGLISH_NAMES: Record<Locale, string> = { en: 'English', hi: 'Hindi' };
 
 export default function Onboarding() {
   const { t } = useTranslation();
-  const selected = currentLocale();
+  const [selected, setSelected] = useState<Locale>(currentLocale());
+
+  const choose = (locale: Locale) => {
+    setSelected(locale);
+    void changeLanguage(locale);
+  };
 
   return (
-    <SafeAreaView style={styles.root}>
-      <View style={styles.hero}>
-        <Text style={styles.app}>{t('appName')}</Text>
-        <Text style={styles.tagline}>{t('tagline')}</Text>
-      </View>
-      <View style={styles.panel}>
-        <Text style={styles.title}>{t('app:onboarding.chooseLanguage')}</Text>
-        {LOCALES.map((locale) => (
-          <Pressable
-            key={locale}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: selected === locale }}
-            onPress={() => void changeLanguage(locale)}
-            style={[styles.option, selected === locale && styles.optionSelected]}
-          >
-            <Text style={[styles.optionText, selected === locale && styles.optionTextSelected]}>
-              {LOCALE_NATIVE_NAMES[locale]}
-            </Text>
-          </Pressable>
-        ))}
-        <Text style={styles.hint}>{t('app:onboarding.changeLater')}</Text>
-        <Pressable
-          accessibilityRole="button"
+    <Screen
+      dock={
+        <Button
+          label={t('app:onboarding.continueIn', { lang: LOCALE_NATIVE_NAMES[selected] })}
+          trailing={<Ionicons name="arrow-forward" size={18} color={colors.textOnAccent} />}
           onPress={() => {
-            void changeLanguage(currentLocale()); // persists the choice
+            void changeLanguage(selected); // persists the choice
             router.replace('/(tabs)');
           }}
-          style={styles.cta}
-        >
-          <Text style={styles.ctaText}>{t('continue')}</Text>
-        </Pressable>
+        />
+      }
+    >
+      <Row style={{ marginTop: spacing.xxl }}>
+        <LinearGradient colors={gradients.accent} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
+          <Ionicons name="scale" size={30} color={colors.textOnAccent} />
+        </LinearGradient>
+      </Row>
+      <Txt variant="eyebrow" style={{ marginTop: spacing.xl }}>
+        {t('appName')}
+      </Txt>
+      <Txt variant="display">{t('app:onboarding.chooseLanguage')}</Txt>
+      <Txt variant="muted">{t('app:onboarding.changeLater')}</Txt>
+
+      <View style={{ gap: spacing.md, marginTop: spacing.lg }} accessibilityRole="radiogroup">
+        {LOCALES.map((locale) => {
+          const on = locale === selected;
+          return (
+            <Pressable
+              key={locale}
+              onPress={() => choose(locale)}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: on }}
+              accessibilityLabel={`${LOCALE_NATIVE_NAMES[locale]}, ${ENGLISH_NAMES[locale]}`}
+              style={({ pressed }) => [styles.option, on && styles.optionOn, pressed && !on && { backgroundColor: colors.surfacePressed }]}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.native}>{LOCALE_NATIVE_NAMES[locale]}</Text>
+                <Txt variant="label">{ENGLISH_NAMES[locale]}</Txt>
+              </View>
+              <View style={[styles.radio, on && styles.radioOn]}>{on ? <Ionicons name="checkmark" size={18} color={colors.textOnAccent} /> : null}</View>
+            </Pressable>
+          );
+        })}
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.navy900 },
-  hero: { flex: 1, justifyContent: 'center', padding: spacing.xl },
-  app: { color: colors.textOnDark, fontSize: typography.display, fontWeight: '800' },
-  tagline: { color: colors.textOnDarkMuted, fontSize: typography.bodyLarge, marginTop: spacing.sm },
-  panel: { backgroundColor: colors.surface, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, padding: spacing.xl, gap: spacing.md },
-  title: { fontSize: typography.title, fontWeight: '700', color: colors.text },
-  option: { minHeight: touchTarget, borderWidth: 2, borderColor: colors.border, borderRadius: radius.md, justifyContent: 'center', paddingHorizontal: spacing.lg },
-  optionSelected: { borderColor: colors.primary, backgroundColor: colors.surfaceMuted },
-  optionText: { fontSize: typography.bodyLarge, color: colors.text },
-  optionTextSelected: { fontWeight: '700', color: colors.primary },
-  hint: { fontSize: typography.caption, color: colors.textMuted },
-  cta: { minHeight: touchTarget, backgroundColor: colors.primary, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  ctaText: { color: colors.textOnDark, fontSize: typography.body, fontWeight: '700' },
+  logo: { width: 64, height: 64, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center', boxShadow: `0 14px 34px -12px ${colors.accentGlow}` },
+  option: {
+    minHeight: 76,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+  },
+  optionOn: { backgroundColor: colors.accentSoft, borderColor: colors.accentText, boxShadow: `0 10px 28px -14px ${colors.accentGlow}` },
+  native: { fontFamily: fonts.heading, fontSize: 22, color: colors.text },
+  radio: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { backgroundColor: colors.accent, borderColor: colors.accent },
 });

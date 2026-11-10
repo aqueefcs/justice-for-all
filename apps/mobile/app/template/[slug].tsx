@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { Alert } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { fillTemplate, type TemplateField } from '@jfa/shared';
-import { Body, EmptyState, Field, Heading, LegalDisclaimer, PrimaryButton, SampleBanner, Screen } from '../../src/components/ui';
+import { colors, spacing } from '@jfa/ui-tokens';
+import { Button, EmptyState, Field, Glass, LegalDisclaimer, Row, SampleBanner, Screen, TopBar, Txt } from '../../src/components/ui';
 import { useContentLookup } from '../../src/content/content-context';
 import { captureError } from '../../src/integrations';
 
@@ -32,7 +34,14 @@ export default function TemplateScreen() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [busy, setBusy] = useState(false);
-  if (!tp) return <EmptyState text={t('app:library.noResults')} />;
+
+  if (!tp) {
+    return (
+      <Screen topBar={<TopBar />}>
+        <EmptyState text={t('app:library.noResults')} />
+      </Screen>
+    );
+  }
 
   const generate = async () => {
     const nextErrors = Object.fromEntries(tp.fields.map((f) => [f.key, validate(f, values[f.key] ?? '', t)]));
@@ -58,13 +67,26 @@ export default function TemplateScreen() {
   };
 
   return (
-    <Screen>
-      <Stack.Screen options={{ title: t('app:templates.title') }} />
+    <Screen
+      topBar={<TopBar title={t('app:templates.title')} />}
+      dock={<Button icon="document" label={t('app:templates.generatePdf')} onPress={() => void generate()} disabled={busy} />}
+    >
+      <Txt variant="eyebrow">{t('app:templates.printReady')}</Txt>
+      <Txt variant="h1">{tp.title}</Txt>
+      <Txt variant="muted">{tp.summary}</Txt>
       <SampleBanner />
-      <Heading>{tp.title}</Heading>
-      <Body muted>{tp.summary}</Body>
-      <Body muted>🔒 {t('app:templates.privacyNote')}</Body>
+      <Glass tone="accent" style={{ padding: spacing.md }}>
+        <Row gap={spacing.sm}>
+          <Ionicons name="lock-closed" size={18} color={colors.accentText} />
+          <Txt variant="label" style={{ flex: 1, color: colors.text }}>
+            {t('app:templates.privacyNote')}
+          </Txt>
+        </Row>
+      </Glass>
 
+      <Txt variant="h3" style={{ marginTop: spacing.sm }}>
+        {t('app:templates.fillForm')}
+      </Txt>
       {tp.fields.map((f) => (
         <Field
           key={f.key}
@@ -79,8 +101,6 @@ export default function TemplateScreen() {
           autoComplete="off"
         />
       ))}
-
-      <PrimaryButton label={t('app:templates.generatePdf')} icon="document" onPress={() => void generate()} disabled={busy} />
       <LegalDisclaimer />
     </Screen>
   );

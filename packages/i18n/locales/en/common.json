@@ -11,13 +11,15 @@
   "close": "Close",
   "search": "Search",
   "readAloud": "Listen",
+  "stop": "Stop",
   "comingSoon": "Coming soon",
   "offline": "You are offline. Saved content still works.",
   "errorGeneric": "Something went wrong. Please try again.",
   "tabs": {
     "home": "Home",
-    "library": "Library",
-    "guides": "Guides",
-    "more": "More"
+    "learn": "Learn",
+    "ask": "Ask",
+    "docs": "Docs",
+    "me": "Me"
   }
 }

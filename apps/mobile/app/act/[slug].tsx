@@ -1,8 +1,9 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { Linking, Text } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
-import { colors, typography } from '@jfa/ui-tokens';
-import { Body, Card, EmptyState, LegalDisclaimer, SampleBanner, Screen, SectionTitle } from '../../src/components/ui';
+import { colors, fonts, radius, spacing } from '@jfa/ui-tokens';
+import { Chip, EmptyState, Glass, LegalDisclaimer, Row, SampleBanner, Screen, TopBar, Txt } from '../../src/components/ui';
 import { useContentLookup } from '../../src/content/content-context';
 
 export default function ActScreen() {
@@ -10,44 +11,67 @@ export default function ActScreen() {
   const { slug, section } = useLocalSearchParams<{ slug: string; section?: string }>();
   const { act } = useContentLookup();
   const a = act(slug);
-  if (!a) return <EmptyState text={t('app:library.noResults')} />;
+
+  if (!a) {
+    return (
+      <Screen topBar={<TopBar />}>
+        <EmptyState text={t('app:library.noResults')} />
+      </Screen>
+    );
+  }
 
   // When opened from search, show the matching section first.
   const sections = section ? [...a.sections].sort((x, y) => Number(y.number === section) - Number(x.number === section)) : a.sections;
 
   return (
-    <Screen>
-      <Stack.Screen options={{ title: a.shortName }} />
+    <Screen topBar={<TopBar title={t('app:library.title')} />}>
+      <Txt variant="eyebrow">{a.shortName} · {a.year}</Txt>
+      <Txt variant="h1">{a.title}</Txt>
+      {a.summary ? <Txt variant="muted">{a.summary}</Txt> : null}
+      <Row gap={spacing.sm} style={{ flexWrap: 'wrap' }}>
+        <Chip label={t('app:library.sectionCount', { count: a.sections.length })} />
+        {a.sourceUrl ? (
+          <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(a.sourceUrl!)} hitSlop={8}>
+            <Chip label={`${t('app:library.source')}: India Code`} tone="accent" />
+          </Pressable>
+        ) : null}
+      </Row>
       <SampleBanner />
-      <SectionTitle>{a.title}</SectionTitle>
-      {a.summary ? <Body muted>{a.summary}</Body> : null}
-      {a.sourceUrl ? (
-        <Text accessibilityRole="link" style={{ color: colors.primary, fontSize: typography.body }} onPress={() => void Linking.openURL(a.sourceUrl!)}>
-          {t('app:library.source')}: India Code
-        </Text>
-      ) : null}
 
       {sections.map((s) => (
-        <Card key={s.number}>
-          <Text style={{ fontSize: typography.bodyLarge, fontWeight: '700', color: colors.text }}>
-            {t('app:library.section', { number: s.number })} — {s.title}
-          </Text>
-          {s.oldLawRefs.map((r) => (
-            <Text key={`${r.act}-${r.section}`} style={{ fontSize: typography.caption, color: colors.textMuted }}>
-              {t('app:library.oldLaw', { act: r.act, section: r.section })}
-            </Text>
-          ))}
+        <Glass key={s.number} tone={s.number === section ? 'accent' : 'default'} style={styles.card}>
+          <Row style={{ alignItems: 'flex-start' }}>
+            <View style={styles.number}>
+              <Text style={styles.numberText}>{s.number}</Text>
+            </View>
+            <View style={{ flex: 1, gap: spacing.xs }}>
+              <Txt variant="h3">{s.title}</Txt>
+              {s.oldLawRefs.map((r) => (
+                <Row key={`${r.act}-${r.section}`} gap={spacing.xs}>
+                  <Ionicons name="git-compare-outline" size={16} color={colors.accentText} />
+                  <Txt variant="label">{t('app:library.oldLaw', { act: r.act, section: r.section })}</Txt>
+                </Row>
+              ))}
+            </View>
+          </Row>
           {s.plainExplanation ? (
-            <>
-              <Text style={{ fontSize: typography.body, fontWeight: '700', color: colors.text }}>{t('app:library.plainExplanation')}</Text>
-              <Body>{s.plainExplanation}</Body>
-            </>
+            <View style={styles.plain}>
+              <Txt variant="eyebrow">{t('app:library.plainExplanation')}</Txt>
+              <Txt>{s.plainExplanation}</Txt>
+            </View>
           ) : null}
-          <Body>{s.text}</Body>
-        </Card>
+          <Txt variant="muted">{s.text}</Txt>
+        </Glass>
       ))}
 
       <LegalDisclaimer />
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  card: { padding: spacing.lg, gap: spacing.md },
+  number: { minWidth: 52, height: 40, paddingHorizontal: spacing.sm, borderRadius: radius.sm, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
+  numberText: { fontFamily: fonts.headingBold, fontSize: 17, color: colors.accentText },
+  plain: { gap: spacing.xs, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surface },
+});

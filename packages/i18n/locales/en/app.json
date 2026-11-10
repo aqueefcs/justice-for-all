@@ -2,19 +2,50 @@
   "onboarding": {
     "welcome": "Welcome",
     "chooseLanguage": "Choose your language",
-    "changeLater": "You can change this later in More → Language."
+    "changeLater": "You can change it any time.",
+    "continueIn": "Continue in {{lang}}"
   },
   "home": {
-    "greeting": "Namaste!",
-    "subtitle": "What do you need help with today?",
-    "searchPlaceholder": "Search laws, guides, forms…",
-    "quickActions": "Quick help",
-    "fileFir": "File an FIR",
-    "fileGd": "Make a GD entry",
-    "makeDraft": "Make a draft",
-    "categories": "Topics",
-    "consultTitle": "Talk to a lawyer",
-    "consultSubtitle": "Low-cost video or phone consultation"
+    "greeting": "Namaste",
+    "heroLine1": "What do you",
+    "heroLine2": "need help with?",
+    "searchPlaceholder": "Search laws, guides, drafts",
+    "tiles": {
+      "fir": { "title": "File an FIR", "sub": "Step by step" },
+      "gd": { "title": "GD entry", "sub": "Lost items, missing papers" },
+      "draft": { "title": "Draft a document", "sub": "Complaints, notices, letters" },
+      "rights": { "title": "Know your rights", "sub": "Plain-language law library" },
+      "lawyer": { "title": "Talk to a lawyer", "sub": "Video or phone call" },
+      "ask": { "title": "Ask a question", "sub": "Get answers in your language" }
+    },
+    "happenedTitle": "Something happened?",
+    "happenedSub": "Tap what's closest.",
+    "situations": {
+      "police": "Police won't take my complaint",
+      "landlord": "Problem with my landlord",
+      "wages": "Employer hasn't paid me",
+      "family": "Trouble at home or in the family",
+      "lostDocs": "I lost my documents"
+    },
+    "emergencyTitle": "Emergency numbers",
+    "emergency": {
+      "all": "Emergency",
+      "women": "Women",
+      "cyber": "Cyber crime",
+      "legalAid": "Legal aid"
+    },
+    "callA11y": "Call {{number}}, {{label}}",
+    "browseLibrary": "Browse the full law library"
+  },
+  "learn": {
+    "title": "Learn",
+    "subtitle": "Laws, guides and ready-to-print drafts.",
+    "tabs": {
+      "laws": "Laws",
+      "guides": "Guides",
+      "drafts": "Drafts"
+    },
+    "topics": "Topics"
   },
   "library": {
     "title": "Legal library",
@@ -32,11 +63,18 @@
   },
   "guides": {
     "title": "Step-by-step guides",
+    "eyebrow": "Guide",
     "steps": "Steps",
     "stepN": "Step {{n}}",
+    "progress": "{{done}} of {{total}} done · saved on this phone",
+    "markDone": "Mark step {{n}} as done",
+    "markNotDone": "Mark step {{n}} as not done",
     "checklist": "What to carry",
     "relatedTemplates": "Make the document",
     "links": "Useful links",
+    "sample": "Sample",
+    "reviewed": "Reviewed by legal panel",
+    "getHelp": "Get help",
     "type": {
       "fir": "FIR",
       "gd": "GD",
@@ -55,7 +93,8 @@
     "invalidDate": "Use the format DD-MM-YYYY",
     "pdfReady": "Your PDF is ready",
     "share": "Share or print",
-    "privacyNote": "Your details stay on this phone. We do not upload them."
+    "privacyNote": "Your details stay on this phone. We do not upload them.",
+    "printReady": "Print-ready"
   },
   "comingSoon": {
     "badge": "Coming soon",
@@ -63,6 +102,10 @@
     "consult": {
       "title": "Talk to a lawyer",
       "body": "Book a low-cost video or phone consultation with a verified lawyer."
+    },
+    "ask": {
+      "title": "Ask a question",
+      "body": "Describe your problem in your own words and get simple answers. A lawyer can follow up."
     },
     "documents": {
       "title": "My documents",
@@ -78,7 +121,7 @@
     }
   },
   "more": {
-    "title": "More",
+    "title": "Me",
     "language": "Language",
     "account": "Account",
     "services": "Services",
