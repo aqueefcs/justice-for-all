@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Justice For All — horizontal logo (icon + wordmark) on the app's dark ground. Wordmark set in Space Grotesk (SIL OFL). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" width="1600" height="480">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#151330"/>
+      <stop offset="0.6" stop-color="#090A10"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="480" rx="48" fill="url(#ground)"/>
+  <g transform="translate(80 80) scale(0.3125)">
+    <rect width="1024" height="1024" rx="232" fill="url(#tile)"/>
+    <g fill="none" stroke="#0B0D17" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="512" cy="236" r="40" fill="#0B0D17" stroke="none"/>
+      <path d="M512 322 V 690"/>
+      <path d="M286 392 Q 512 336 738 392"/>
+      <path d="M286 392 L 222 548"/>
+      <path d="M286 392 L 350 548"/>
+      <path d="M200 548 Q 286 626 372 548 Z" fill="#0B0D17"/>
+      <path d="M738 392 L 674 548"/>
+      <path d="M738 392 L 802 548"/>
+      <path d="M652 548 Q 738 626 824 548 Z" fill="#0B0D17"/>
+    </g>
+    <path d="M500 724 C 430 682 338 674 240 700 L 240 820 C 338 796 430 802 500 846 Z" fill="#0B0D17"/>
+    <path d="M524 724 C 594 682 686 674 784 700 L 784 820 C 686 796 594 802 524 846 Z" fill="#0B0D17"/>
+  </g>
+  <text x="480" y="232" font-family="Space Grotesk" font-weight="700" font-size="124" letter-spacing="-3" fill="#EEF1F7">Justice For All</text>
+  <text x="484" y="318" font-family="Space Grotesk" font-weight="500" font-size="52" fill="#7DEBFA">Know your rights. Get help.</text>
+</svg>

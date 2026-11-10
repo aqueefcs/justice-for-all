@@ -1,10 +1,10 @@
 import { router, type Href } from 'expo-router';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import { LOCALE_NATIVE_NAMES } from '@jfa/shared';
-import { colors, fonts, gradients, radius, spacing } from '@jfa/ui-tokens';
+import { colors, fonts, radius, spacing } from '@jfa/ui-tokens';
+import { Logo } from '../../src/components/logo';
 import {
   Button,
   LegalDisclaimer,
@@ -58,9 +58,7 @@ export default function Home() {
     <Screen>
       {/* Header */}
       <Row style={{ marginTop: spacing.sm }}>
-        <LinearGradient colors={gradients.accent} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
-          <Ionicons name="scale" size={22} color={colors.textOnAccent} />
-        </LinearGradient>
+        <Logo size={44} />
         <View style={{ flex: 1 }}>
           <Txt variant="label">{t('app:home.greeting')}</Txt>
           <Txt variant="bodyStrong">{t('appName')}</Txt>
@@ -148,7 +146,6 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  logo: { width: 44, height: 44, borderRadius: radius.sm + 2, alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px -8px ${colors.accentGlow}` },
   langButton: {
     minHeight: 48,
     minWidth: 64,

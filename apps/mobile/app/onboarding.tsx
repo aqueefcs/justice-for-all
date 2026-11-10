@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import { LOCALES, LOCALE_NATIVE_NAMES, type Locale } from '@jfa/shared';
-import { colors, fonts, gradients, radius, spacing } from '@jfa/ui-tokens';
+import { colors, fonts, radius, spacing } from '@jfa/ui-tokens';
+import { Logo } from '../src/components/logo';
 import { Button, Row, Screen, Txt } from '../src/components/ui';
 import { changeLanguage, currentLocale } from '../src/lib/i18n';
 
@@ -35,9 +35,7 @@ export default function Onboarding() {
       }
     >
       <Row style={{ marginTop: spacing.xxl }}>
-        <LinearGradient colors={gradients.accent} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
-          <Ionicons name="scale" size={30} color={colors.textOnAccent} />
-        </LinearGradient>
+        <Logo size={72} />
       </Row>
       <Txt variant="eyebrow" style={{ marginTop: spacing.xl }}>
         {t('appName')}
@@ -71,7 +69,6 @@ export default function Onboarding() {
 }
 
 const styles = StyleSheet.create({
-  logo: { width: 64, height: 64, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center', boxShadow: `0 14px 34px -12px ${colors.accentGlow}` },
   option: {
     minHeight: 76,
     flexDirection: 'row',
