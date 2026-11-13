@@ -48,6 +48,19 @@ The app runs fully offline on the bundled SAMPLE pack. To use real packs, set `E
 If the phone can't connect, allow Node.js through Windows Firewall for your network profile, and
 make sure the phone isn't on a guest network that isolates clients.
 
+## Local Android builds on Windows (`npx expo run:android`)
+Most people should use the cloud build below. These steps apply only to building on your own PC.
+1. `JAVA_HOME` must be the JDK folder itself, **not** its `\bin` (e.g. `C:\Program Files\Java\jdk-17`).
+2. Turn on long file paths. In an **Administrator** PowerShell, run:
+   `reg add HKLM\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1 /f`
+   Then sign out and back in.
+3. Install CMake 3.31.6 (`sdkmanager "cmake;3.31.6"`). Then add this to `apps/mobile/android/local.properties`:
+   `cmake.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk\\cmake\\3.31.6`
+   CMake 3.31.6 ships ninja 1.12+, which handles the long paths this monorepo creates.
+4. If IPv6 is broken on your network, add `systemProp.java.net.preferIPv4Stack=true` to `%USERPROFILE%\.gradle\gradle.properties`.
+
+`npx expo prebuild --clean` deletes `android/`, so you'd need to redo step 3 after it.
+
 ## Share an APK with partners
 See `.claude/skills/build-apk/SKILL.md`. In short:
 ```bash
