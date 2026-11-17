@@ -10,7 +10,8 @@ paths:
 - DTOs: create them with `createZodDto(schema)` from `nestjs-zod`, using schemas imported from `packages/shared`. Register the global `ZodValidationPipe`.
 - Every route has Swagger decorators (`@ApiTags`, `@ApiOkResponse`…). After any API change, regenerate `packages/api-client`.
 - Auth and authorisation:
-  - Better Auth session guard globally; mark public routes explicitly with `@Public()`.
+  - The global `AuthGuard` resolves the Better Auth session (`AuthService.resolveUser`) and enforces two-step verification for every non-citizen role. Mark public routes explicitly with `@Public()`.
+  - Better Auth's own routes (`/v1/auth/*`) are raw Fastify routes (`auth/auth-routes.ts`). Policy for its `/admin/*` endpoints lives in the `hooks.before` middleware in `auth/better-auth.ts`.
   - Use `@Roles('reviewer', 'admin')` together with `RolesGuard`.
   - Ownership checks (e.g. a user can only access their own documents) live in the service, not only in the guard.
 - Audit: an `AuditInterceptor` or explicit `auditService.log()` call on every create/update/delete of users, lawyers, content status, documents and payments.

@@ -10,3 +10,5 @@ Each significant decision gets a short record: context → decision → conseque
 | [0004](0004-single-mobile-app-role-based.md) | One Expo app with role-based modes; no judge role | Accepted |
 | [0005](0005-free-tier-hosting.md) | Free-tier hosting: Cloudflare R2/Pages, Atlas, EAS | Partly superseded by 0006 |
 | [0006](0006-aws-hosting.md) | AWS hosting: Lambda (Mumbai) + SQS + CDK, fronted by Cloudflare | Accepted |
+| [0007](0007-better-auth-on-fastify.md) | Better Auth on Fastify; mandatory two-step verification for staff | Accepted |
+| [0008](0008-published-snapshots.md) | Published snapshots keep approved content live while re-editing | Accepted |

@@ -5,12 +5,12 @@ Legal-help platform for ordinary and low-income people in India: plain-language 
 The full plan is in [docs/plan.md](docs/plan.md). Decisions are recorded in [docs/adr/](docs/adr/). Read both before making architectural changes.
 
 ## Current phase
-**Phase 0 → Phase 1 (MVP).** The MVP has two real features: the **Knowledge Library** (acts/sections/articles) and the **Guides** (FIR, GD, drafting templates → PDF). Consult a Lawyer, My Documents, Profile/Login and Lawyer mode are **"Coming soon" placeholder screens**. Do not build their backends until the phase says so.
+**Phase 1 (MVP), slice 1 done: staff sign-in + content editor.** The MVP has two real citizen features: the **Knowledge Library** (acts/sections/articles) and the **Guides** (FIR, GD, drafting templates → PDF). Staff (lawyers, reviewers, admins) sign in to the admin console with mandatory two-step verification. They write and approve content there and publish it to the app. Next Phase 1 slices: full bare-act import from India Code with offline search, then more languages. Citizen sign-in, Consult a Lawyer, My Documents and Lawyer mode in the app stay **"Coming soon"** until Phase 2/3.
 
 ## Monorepo map (pnpm + Turborepo, TypeScript strict everywhere)
 ```
 apps/mobile      Expo SDK 58 + expo-router app (citizen + lawyer modes in ONE app)
-apps/admin       Vite + React + TanStack Router + Tailwind admin & content CMS
+apps/admin       Vite + React + TanStack Router + Tailwind + shadcn/ui (Radix) admin & content CMS; TipTap editor
 apps/api         NestJS 11 (Fastify adapter) REST API, Swagger at /docs; src/worker.ts = SQS worker
 apps/web         (Phase 4) public SEO website
 packages/db      Mongoose schemas (plain, registered via MODEL_DEFINITIONS), indexes, seed
@@ -53,7 +53,11 @@ Requires Node 22.13+ (local: Node 26; Lambda runtime: Node 24) and pnpm 9+. On W
 - Mongoose `sanitizeFilter` is on: operators you build server-side must be wrapped in `trusted({...})`.
 - `ConfigModule` validates env when `AppModule` is imported — set env (or load SSM) **before** importing it (see `main.ts`, `worker.ts`, tests).
 - Lambda bundles are built from `dist/` (tsc keeps decorator metadata; esbuild alone would not).
-- Local dev auth: `x-dev-role: <role>` header works only with `STAGE=local|test` and `ALLOW_DEV_AUTH=true`.
+- Auth (ADR 0007): Better Auth is mounted directly on Fastify at `/v1/auth/*` (`apps/api/src/auth/`). It is ESM-only, so load it with `import()`; never use a top-level `import` in the API. Every non-citizen role needs two-step verification (`TWO_FACTOR_REQUIRED`). Only a `super_admin` may grant admin roles. The first admin comes from `pnpm --filter @jfa/api create-admin`.
+- `x-dev-role` / `x-dev-user` headers impersonate users **only in automated tests** (`STAGE=test` + `ALLOW_DEV_AUTH=true`). Local development uses real sign-in. Tests ignore `apps/api/.env`.
+- Content types are registered once in `apps/api/src/content/content-types.ts`. Routes, workflow, review queue, audit and sanitising follow automatically.
+- Approval stores a `published` snapshot, and packs are built from snapshots (ADR 0008). Re-editing never removes the live version from the app; archiving does.
+- Windows: stop Metro/Expo before `pnpm install`/`pnpm add`. Its file watchers lock `node_modules` (`ENOENT … _tmp_` errors).
 - Integrations: see docs/integrations.md — each has a placeholder service with a TODO; status at `GET /v1/integrations`.
 
 ## Non-negotiable rules

@@ -17,7 +17,7 @@ Where secrets go:
 | **Cloudflare R2** (storage + CDN) | ✅ Implemented; writes to `.local-storage/` when no keys are set | MVP | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_PUBLIC_BUCKET`, `R2_PRIVATE_BUCKET`, `CONTENT_CDN_URL` | `integrations/storage/storage.service.ts` | Create 2 buckets: a public one on a custom domain `content.<domain>`, and a private one. Create an R2 API token scoped to those buckets. |
 | **AWS SQS** (jobs) | ✅ Implemented; jobs run inline when not set | MVP | `JOBS_QUEUE_URL` (set by CDK automatically) | `integrations/queue/queue.service.ts`, `jobs/jobs.module.ts`, `worker.ts` | Nothing: CDK creates the queue, the DLQ and the worker. |
 | **Cloudflare origin lock** | ✅ Implemented | MVP | `ORIGIN_VERIFY_SECRET` | `common/guards/origin-verify.guard.ts` | Create a Cloudflare Transform Rule that adds the `x-origin-verify` header to requests for `api.<domain>`. |
-| **Better Auth** | 🟡 Placeholder (only the local dev-role header works) | MVP (staff) / Phase 2 (citizens) | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `auth/auth.service.ts` | Add `better-auth` + `@thallesp/nestjs-better-auth` with the MongoDB adapter. Staff: email + 2FA. Citizens: phone OTP + Google. |
+| **Better Auth** | ✅ Staff sign-in working: email + password + mandatory TOTP two-step, roles, Team management (ADR 0007) | MVP (staff) ✅ / Phase 2 (citizens) | `BETTER_AUTH_SECRET` (required, 32+ chars), `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `auth/better-auth.ts`, `auth/auth-routes.ts` | Phase 2: citizen phone OTP (`phoneNumber` plugin → `SmsService`) and Google sign-in. |
 | **Amazon SES** (email) | ✅ Implemented; skips when not set | Phase 2 | `SES_FROM_EMAIL` | `integrations/email/email.service.ts` | Verify the domain (DKIM) and request production access. |
 | **MSG91** (SMS OTP) | 🟡 Placeholder | Phase 2 | `MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID` | `integrations/sms/sms.service.ts` | TRAI DLT registration (entity, sender ID, OTP template), then implement `sendOtp`. |
 | **Expo Push** | 🟡 Placeholder | Phase 2 | `EXPO_ACCESS_TOKEN` | `integrations/push/push.service.ts` | Add `expo-server-sdk`, store device tokens, handle receipts. |
@@ -47,7 +47,8 @@ Where secrets go:
 | Tool | Status | Code |
 |---|---|---|
 | API client + TanStack Query | ✅ Working (health, guides, integrations pages) | `apps/admin/src/lib.ts`, `src/pages.tsx` |
-| Staff login | 🟡 Dev-role placeholder (local only). Replace with Better Auth (email + 2FA). | `apps/admin/src/lib.ts` (`devAuth`) |
+| Staff login | ✅ Better Auth client: sign-in, two-step setup/verification, change password; Team page for admins | `apps/admin/src/lib/auth.ts`, `src/routes/auth-pages.tsx` |
+| Content editor | ✅ Guides, explainers, letters, topics; locale tabs; review queue; Publish to app | `apps/admin/src/routes/content-editor.tsx`, `src/components/content-forms.tsx` |
 | Hosting | Cloudflare Pages: build `pnpm --filter @jfa/admin build`, output `apps/admin/dist` | none |
 
 ## AWS (infra/)
