@@ -292,7 +292,7 @@
   "info": {
     "title": "Justice For All API",
     "description": "REST API for the Justice For All app, admin console and website.",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "contact": {}
   },
   "tags": [],

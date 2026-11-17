@@ -1,12 +1,15 @@
 // Writes apps/api/openapi.json without a database (lazy Mongo connection).
 // Used by `pnpm --filter @jfa/api-client generate`. Requires `pnpm --filter @jfa/api build` first.
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const here = dirname(fileURLToPath(import.meta.url));
 process.env.OPENAPI_EXPORT = '1';
+// Deterministic output on every machine (CI has no .env): version comes from package.json.
+const pkg = JSON.parse(readFileSync(join(here, '..', 'package.json'), 'utf8'));
+process.env.APP_VERSION = pkg.version;
 process.env.STAGE ??= 'local';
 process.env.MONGODB_URI ??= 'mongodb://127.0.0.1:1/openapi-export';
 process.env.SWAGGER_ENABLED = 'false';
