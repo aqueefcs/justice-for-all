@@ -126,6 +126,41 @@ describe('review queue and summary', () => {
   });
 });
 
+describe('live version stays in the app while re-editing', () => {
+  async function publishedGuideTitles(): Promise<string[]> {
+    const res = await call('POST', '/v1/publishing/packs', REVIEWER_A, { locales: ['en'] });
+    expect(res.status).toBe(200);
+    const { readFile } = await import('node:fs/promises');
+    const pack = JSON.parse(await readFile(res.body.manifest.packs[0].url, 'utf8'));
+    return pack.guides.map((g: { title: string }) => g.title);
+  }
+
+  it('builds packs from the approved snapshot; archiving removes it', async () => {
+    const created = await call('POST', '/v1/content/guides', LAWYER, {
+      ...(SAMPLES.guides as object),
+      slug: 'snapshot-guide',
+      translations: { en: { title: 'Approved title', summary: 'S', steps: [{ title: 'One', body: 'Body' }] } },
+    });
+    const id = created.body.id as string;
+    await call('POST', `/v1/content/guides/${id}/status`, LAWYER, { status: 'in_review' });
+    await call('POST', `/v1/content/guides/${id}/status`, REVIEWER_A, { status: 'published' });
+    expect(await publishedGuideTitles()).toContain('Approved title');
+
+    // Re-open for editing: the approved version must stay live
+    expect((await call('POST', `/v1/content/guides/${id}/status`, LAWYER, { status: 'draft' })).status).toBe(200);
+    await call('PATCH', `/v1/content/guides/${id}`, LAWYER, {
+      translations: { en: { title: 'Unreviewed new title', summary: 'S', steps: [{ title: 'One', body: 'Body' }] } },
+    });
+    const titles = await publishedGuideTitles();
+    expect(titles).toContain('Approved title');
+    expect(titles).not.toContain('Unreviewed new title');
+
+    // Archive: gone from the app
+    expect((await call('POST', `/v1/content/guides/${id}/status`, LAWYER, { status: 'archived' })).status).toBe(200);
+    expect(await publishedGuideTitles()).not.toContain('Approved title');
+  });
+});
+
 describe('sanitising', () => {
   it('strips scripts, event handlers and javascript: links from article bodies', async () => {
     const res = await call('POST', '/v1/content/articles', LAWYER, {

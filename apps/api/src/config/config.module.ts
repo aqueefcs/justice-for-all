@@ -11,6 +11,8 @@ import { validateEnv } from './env';
       cache: true,
       validate: validateEnv,
       envFilePath: ['.env'],
+      // Automated tests must not depend on a developer's local .env (CI has none).
+      ignoreEnvFile: process.env.STAGE === 'test',
     }),
   ],
   providers: [AppConfig],

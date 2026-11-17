@@ -13,6 +13,29 @@ import type { RequestUser } from '../common/auth.types';
 import type { ContentTypeConfig } from './content-types';
 import { toResponse } from './to-response';
 
+/** Workflow/bookkeeping fields that are not part of the content itself. */
+const META_FIELDS = new Set(['_id', 'status', 'version', 'authorId', 'reviewerId', 'publishedAt', 'isSample', 'published', 'createdAt', 'updatedAt']);
+
+/**
+ * The approved content: every content field, with each translation marked published
+ * (the reviewer approves exactly what they see, including translations).
+ */
+export function publishedSnapshot(doc: Record<string, unknown>): Record<string, unknown> {
+  const snapshot: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(doc)) {
+    if (!META_FIELDS.has(key)) snapshot[key] = value;
+  }
+  const translations = doc.translations as Record<string, Record<string, unknown> | undefined> | undefined;
+  if (translations) {
+    snapshot.translations = Object.fromEntries(
+      Object.entries(translations)
+        .filter(([, t]) => t)
+        .map(([locale, t]) => [locale, { ...t, status: 'published' }]),
+    );
+  }
+  return snapshot;
+}
+
 type ContentDoc = Record<string, unknown> & {
   _id: unknown;
   slug: string;
@@ -87,6 +110,8 @@ export class ContentWorkflowService {
       });
     }
     const set: Record<string, unknown> = { status: input.status };
+    const unset: Record<string, ''> = {};
+    if (input.status === 'archived') unset.published = '';
     if (input.status === 'published') {
       if (!hasAnyRole(user.role, CONTENT_PUBLISHER_ROLES)) {
         throw new ForbiddenException({ code: ERROR_CODES.FORBIDDEN, message: 'Only reviewers can publish' });
@@ -100,8 +125,10 @@ export class ContentWorkflowService {
       set.version = (doc.version ?? 1) + 1;
       // Approved by a panel lawyer: no longer starter/sample content.
       set.isSample = false;
+      set.published = publishedSnapshot(doc);
     }
-    const updated = await this.model.findByIdAndUpdate(id, { $set: set }, { returnDocument: 'after' }).lean();
+    const update = Object.keys(unset).length ? { $set: set, $unset: unset } : { $set: set };
+    const updated = await this.model.findByIdAndUpdate(id, update, { returnDocument: 'after' }).lean();
     await this.audit.log({
       actor: user,
       action: `${this.type.entity}.status.${input.status}`,

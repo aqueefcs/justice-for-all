@@ -34,4 +34,10 @@ export const publishingFields = {
   publishedAt: { type: Date },
   /** True for un-reviewed SAMPLE seed data. Must be false before public release. */
   isSample: { type: Boolean, default: false },
+  /**
+   * Snapshot of the content as last approved by a reviewer (all translations marked published).
+   * Content packs are built from this, so editing a new draft never removes the live version
+   * from the app. Cleared when the item is archived.
+   */
+  published: { type: Schema.Types.Mixed },
 } satisfies SchemaDefinition;

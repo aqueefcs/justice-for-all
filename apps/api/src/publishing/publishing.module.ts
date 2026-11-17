@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { Body, Controller, HttpCode, Injectable, Logger, Module, Post, type OnModuleInit } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import type { Model } from 'mongoose';
+import { trusted, type Model } from 'mongoose';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { modelDefinitions } from '@jfa/db';
@@ -23,6 +23,17 @@ import { JobsService } from '../jobs/jobs.module';
 import { buildPack } from './pack-builder';
 
 type AnyModel = Model<any>;
+
+/**
+ * Live content = the reviewer-approved snapshot (`published`), so items being re-edited stay in
+ * the app. Older documents without a snapshot (e.g. seeded) count while their status is published.
+ * sanitizeFilter is on: server-built operators are explicitly trusted.
+ */
+const LIVE_CONTENT = { $or: [{ published: trusted({ $exists: true }) }, { status: 'published' }] };
+
+function liveVersion(doc: Record<string, any>) {
+  return doc.published ? { ...doc.published, isSample: doc.isSample } : doc;
+}
 
 @Injectable()
 export class PublishingService implements OnModuleInit {
@@ -46,15 +57,11 @@ export class PublishingService implements OnModuleInit {
 
   /** Builds and uploads one pack per locale, then rewrites the manifest. */
   async publishAll(locales: readonly Locale[] = LOCALES, requestedBy?: string) {
-    const published = { status: 'published' };
-    const [categories, acts, sections, articles, guides, templates] = await Promise.all([
-      this.categories.find(published).lean(),
-      this.acts.find(published).lean(),
-      this.sections.find(published).lean(),
-      this.articles.find(published).lean(),
-      this.guides.find(published).lean(),
-      this.templates.find(published).lean(),
-    ]);
+    const [categories, acts, sections, articles, guides, templates] = await Promise.all(
+      [this.categories, this.acts, this.sections, this.articles, this.guides, this.templates].map((model) =>
+        model.find(LIVE_CONTENT).lean().then((docs) => docs.map(liveVersion)),
+      ),
+    );
     const sources = { categories, acts, sections, articles, guides, templates } as any;
 
     const results: PackManifest['packs'] = [];
