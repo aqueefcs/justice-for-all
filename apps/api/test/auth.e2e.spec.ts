@@ -69,7 +69,18 @@ beforeAll(async () => {
   const auth = app.get(AUTH_INSTANCE);
   await createStaffUser(auth, { email: 'lawyer@example.in', name: 'Lawyer One', role: 'lawyer', password: PASSWORD });
   await createStaffUser(auth, { email: 'citizen@example.in', name: 'Citizen', role: 'citizen', password: PASSWORD });
+  await createStaffUser(auth, { email: 'admin@example.in', name: 'Admin', role: 'admin', password: PASSWORD });
+  await createStaffUser(auth, { email: 'root@example.in', name: 'Super Admin', role: 'super_admin', password: PASSWORD });
 });
+
+/** Signs in and turns on TOTP two-factor, returning a ready browser. */
+async function signInWith2fa(email: string): Promise<Browser> {
+  const b = new Browser();
+  expect((await b.call('POST', '/v1/auth/sign-in/email', { email, password: PASSWORD })).status).toBe(200);
+  const enable = await b.call('POST', '/v1/auth/two-factor/enable', { password: PASSWORD });
+  expect((await b.call('POST', '/v1/auth/two-factor/verify-totp', { code: totpFromUri(enable.body.totpURI) })).status).toBe(200);
+  return b;
+}
 
 afterAll(async () => {
   await app?.close();
@@ -130,6 +141,28 @@ describe('Better Auth', () => {
     const res = await b.call('GET', '/v1/content/guides');
     expect(res.status).toBe(403);
     expect(res.body.code).toBe('FORBIDDEN');
+  });
+
+  it('team management: 2FA required, and only a super admin can grant admin roles', async () => {
+    const newUser = (email: string, role: string) => ({ email, name: 'New Person', password: PASSWORD, role });
+
+    // An admin without two-factor cannot manage users at all
+    const noTwoFactor = new Browser();
+    await noTwoFactor.call('POST', '/v1/auth/sign-in/email', { email: 'admin@example.in', password: PASSWORD });
+    expect((await noTwoFactor.call('POST', '/v1/auth/admin/create-user', newUser('x1@example.in', 'lawyer'))).status).toBe(403);
+
+    const admin = await signInWith2fa('admin@example.in');
+    expect((await admin.call('POST', '/v1/auth/admin/create-user', newUser('lawyer2@example.in', 'lawyer'))).status).toBe(200);
+    expect((await admin.call('POST', '/v1/auth/admin/create-user', newUser('evil@example.in', 'super_admin'))).status).toBe(403);
+    expect((await admin.call('POST', '/v1/auth/admin/create-user', newUser('evil2@example.in', 'admin'))).status).toBe(403);
+
+    const root = await signInWith2fa('root@example.in');
+    expect((await root.call('POST', '/v1/auth/admin/create-user', newUser('admin2@example.in', 'admin'))).status).toBe(200);
+
+    // Lawyers cannot manage users
+    const lawyer = new Browser();
+    await lawyer.call('POST', '/v1/auth/sign-in/email', { email: 'lawyer2@example.in', password: PASSWORD });
+    expect((await lawyer.call('GET', '/v1/auth/admin/list-users')).status).toBeGreaterThanOrEqual(401);
   });
 
   it('x-dev-role is ignored when dev auth is off', async () => {

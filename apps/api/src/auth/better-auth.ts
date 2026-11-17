@@ -10,6 +10,9 @@ import { ROLES } from '@jfa/shared';
  */
 export const AUTH_INSTANCE = Symbol('AUTH_INSTANCE');
 
+/** Roles only a super_admin may grant. */
+const PRIVILEGED_ROLES = new Set(['admin', 'super_admin']);
+
 export interface AuthOptions {
   secret: string;
   baseURL: string;
@@ -26,6 +29,7 @@ export async function createAuth(opts: AuthOptions) {
   const { admin, twoFactor } = await import('better-auth/plugins');
   const { createAccessControl } = await import('better-auth/plugins/access');
   const { defaultStatements, adminAc, userAc } = await import('better-auth/plugins/admin/access');
+  const { APIError, createAuthMiddleware, getSessionFromCtx } = await import('better-auth/api');
 
   // Custom role names must be declared to the admin plugin. Only admin/super_admin may manage
   // users; content permissions are enforced by our own RolesGuard (RBAC on the API routes).
@@ -67,6 +71,26 @@ export async function createAuth(opts: AuthOptions) {
       admin({ ac, roles, defaultRole: 'citizen', adminRoles: ['admin', 'super_admin'] }),
     ],
     rateLimit: { enabled: !opts.isTest },
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        if (!ctx.path.startsWith('/admin/')) return;
+        const session = await getSessionFromCtx(ctx);
+        const actor = session?.user as { role?: string; twoFactorEnabled?: boolean | null } | undefined;
+        // Same rule as the API guard: staff must use two-step verification to manage users.
+        if (actor && !actor.twoFactorEnabled) {
+          throw new APIError('FORBIDDEN', { message: 'Set up two-step verification to continue', code: 'TWO_FACTOR_REQUIRED' });
+        }
+        // Privilege escalation guard: only a super_admin may grant admin or super_admin.
+        if (ctx.path !== '/admin/create-user' && ctx.path !== '/admin/set-role') return;
+        const requested = ([] as unknown[])
+          .concat((ctx.body as { role?: unknown } | undefined)?.role ?? [])
+          .flatMap((r) => String(r).split(','));
+        if (!requested.some((r) => PRIVILEGED_ROLES.has(r.trim()))) return;
+        if (!String(actor?.role ?? '').split(',').includes('super_admin')) {
+          throw new APIError('FORBIDDEN', { message: 'Only a super admin can grant admin roles' });
+        }
+      }),
+    },
     advanced: {
       cookiePrefix: 'jfa',
       useSecureCookies: !opts.isLocal,
