@@ -4,7 +4,9 @@ import type { Role } from '@jfa/shared';
 export interface RequestUser {
   id: string;
   role: Role;
-  /** True when resolved from the local-only `x-dev-role` header. */
+  /** Staff must have TOTP two-factor enabled to use staff routes. */
+  twoFactorEnabled: boolean;
+  /** True when resolved from the test-only `x-dev-role` header. */
   isDev?: boolean;
 }
 

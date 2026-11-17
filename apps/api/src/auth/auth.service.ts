@@ -1,39 +1,64 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { RoleSchema } from '@jfa/shared';
+import { Inject, Injectable } from '@nestjs/common';
+import { RoleSchema, type Role } from '@jfa/shared';
 import { AppConfig } from '../config/app-config.service';
 import type { AppRequest, RequestUser } from '../common/auth.types';
+import { AUTH_INSTANCE, type Auth } from './better-auth';
+
+/** Converts Node/Fastify headers to web `Headers` for Better Auth. */
+export function toWebHeaders(raw: AppRequest['headers']): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(raw)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) value.forEach((v) => headers.append(key, v));
+    else headers.set(key, String(value));
+  }
+  return headers;
+}
+
+/** Better Auth stores roles as a comma-separated string; take the first role we recognise. */
+export function parseRole(raw: unknown): Role {
+  const candidates = typeof raw === 'string' ? raw.split(',').map((r) => r.trim()) : [];
+  for (const c of candidates) {
+    const parsed = RoleSchema.safeParse(c);
+    if (parsed.success) return parsed.data;
+  }
+  return 'citizen';
+}
 
 /**
- * PLACEHOLDER — Better Auth integration.
- *
- * TODO(Phase 1): add `better-auth` + `@thallesp/nestjs-better-auth` with the MongoDB adapter:
- *   - staff: email + password + 2FA (twoFactor plugin), admin plugin for roles
- *   - Phase 2 citizens: phoneNumber plugin (OTP via SmsService/MSG91) + Google social login
- *   - sessions: httpOnly cookies (web) / bearer tokens stored in expo-secure-store (mobile)
- * Then implement `resolveUser` from the Better Auth session and map to our `users` collection.
- *
- * Until then: no real sign-in exists. In STAGE=local|test with ALLOW_DEV_AUTH=true, the
- * `x-dev-role` header impersonates a role so staff routes can be developed and tested.
+ * Resolves the signed-in user from the Better Auth session cookie / bearer token.
+ * In automated tests only (STAGE=test + ALLOW_DEV_AUTH), `x-dev-role` impersonates a role.
  */
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
-  constructor(private readonly config: AppConfig) {}
+  constructor(
+    private readonly config: AppConfig,
+    @Inject(AUTH_INSTANCE) private readonly auth: Auth | undefined,
+  ) {}
 
   get isConfigured(): boolean {
-    return Boolean(this.config.get('BETTER_AUTH_SECRET'));
+    return Boolean(this.auth && this.config.get('BETTER_AUTH_SECRET'));
   }
 
   async resolveUser(request: AppRequest): Promise<RequestUser | undefined> {
-    if (this.config.isLocal && this.config.get('ALLOW_DEV_AUTH')) {
-      const header = request.headers['x-dev-role'];
-      const parsed = RoleSchema.safeParse(header);
+    if (this.config.get('STAGE') === 'test' && this.config.get('ALLOW_DEV_AUTH')) {
+      const parsed = RoleSchema.safeParse(request.headers['x-dev-role']);
       if (parsed.success) {
-        return { id: `dev-${parsed.data}`, role: parsed.data, isDev: true };
+        const devUser = request.headers['x-dev-user'];
+        return {
+          id: typeof devUser === 'string' && devUser ? devUser : `dev-${parsed.data}`,
+          role: parsed.data,
+          twoFactorEnabled: true,
+          isDev: true,
+        };
       }
     }
-    // TODO(Phase 1): resolve Better Auth session here.
-    return undefined;
+    if (!this.auth) return undefined;
+
+    const session = await this.auth.api.getSession({ headers: toWebHeaders(request.headers) });
+    if (!session) return undefined;
+    const user = session.user as { id: string; role?: string; twoFactorEnabled?: boolean | null; banned?: boolean | null };
+    if (user.banned) return undefined;
+    return { id: user.id, role: parseRole(user.role), twoFactorEnabled: Boolean(user.twoFactorEnabled) };
   }
 }

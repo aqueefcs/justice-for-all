@@ -8,6 +8,8 @@ import { cleanupOpenApiDoc } from 'nestjs-zod';
 import { applyMongooseSafety } from '@jfa/db';
 import { ERROR_CODES, hasUnsafeMongoKeys } from '@jfa/shared';
 import { AppModule } from './app.module';
+import { registerAuthRoutes } from './auth/auth-routes';
+import { AUTH_INSTANCE, type Auth } from './auth/better-auth';
 import { AppConfig } from './config/app-config.service';
 
 export const API_PREFIX = 'v1';
@@ -37,6 +39,10 @@ export async function createApp(): Promise<NestFastifyApplication> {
         return reply.status(400).send({ code: ERROR_CODES.VALIDATION_FAILED, message: 'Invalid keys in request' });
       }
     });
+
+  // Better Auth endpoints: /v1/auth/* (sign-in, two-factor, admin user management).
+  const auth = app.get<Auth | undefined>(AUTH_INSTANCE);
+  if (auth) registerAuthRoutes(app.getHttpAdapter().getInstance(), auth, config.get('ORIGIN_VERIFY_SECRET'));
 
   app.setGlobalPrefix(API_PREFIX);
   app.enableShutdownHooks();

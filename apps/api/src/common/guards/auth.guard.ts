@@ -1,4 +1,10 @@
-import { Injectable, UnauthorizedException, type CanActivate, type ExecutionContext } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+  type CanActivate,
+  type ExecutionContext,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ERROR_CODES } from '@jfa/shared';
 import { AuthService } from '../../auth/auth.service';
@@ -24,6 +30,13 @@ export class AuthGuard implements CanActivate {
     const user = await this.auth.resolveUser(request);
     if (!user) {
       throw new UnauthorizedException({ code: ERROR_CODES.UNAUTHENTICATED, message: 'Sign in required' });
+    }
+    // Everyone except citizens works with legal content or people's data: two-factor is mandatory.
+    if (user.role !== 'citizen' && !user.twoFactorEnabled) {
+      throw new ForbiddenException({
+        code: ERROR_CODES.TWO_FACTOR_REQUIRED,
+        message: 'Set up two-step verification to continue',
+      });
     }
     request.user = user;
     return true;

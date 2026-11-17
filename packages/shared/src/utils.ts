@@ -33,6 +33,8 @@ export function escapeHtml(input: string): string {
 export const ERROR_CODES = {
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   UNAUTHENTICATED: 'UNAUTHENTICATED',
+  /** Staff account must enable two-factor authentication before using staff routes. */
+  TWO_FACTOR_REQUIRED: 'TWO_FACTOR_REQUIRED',
   FORBIDDEN: 'FORBIDDEN',
   NOT_FOUND: 'NOT_FOUND',
   CONFLICT: 'CONFLICT',

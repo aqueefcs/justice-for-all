@@ -61,8 +61,12 @@ export const EnvSchema = z
     POSTHOG_HOST: optional,
   })
   .superRefine((env, ctx) => {
-    if (env.ALLOW_DEV_AUTH && !['local', 'test'].includes(env.STAGE)) {
-      ctx.addIssue({ code: 'custom', path: ['ALLOW_DEV_AUTH'], message: 'Dev auth is only allowed when STAGE=local|test' });
+    if (env.ALLOW_DEV_AUTH && env.STAGE !== 'test') {
+      ctx.addIssue({ code: 'custom', path: ['ALLOW_DEV_AUTH'], message: 'Dev auth (x-dev-role) is only allowed in automated tests (STAGE=test)' });
+    }
+    const exportingSpec = process.env.OPENAPI_EXPORT === '1';
+    if (env.STAGE !== 'test' && !exportingSpec && (!env.BETTER_AUTH_SECRET || env.BETTER_AUTH_SECRET.length < 32)) {
+      ctx.addIssue({ code: 'custom', path: ['BETTER_AUTH_SECRET'], message: 'Required, at least 32 random characters (e.g. `openssl rand -base64 32`)' });
     }
     if (env.STAGE === 'prod' && !env.ORIGIN_VERIFY_SECRET) {
       ctx.addIssue({ code: 'custom', path: ['ORIGIN_VERIFY_SECRET'], message: 'Required in prod' });

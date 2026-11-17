@@ -1,16 +1,15 @@
 import { Schema } from 'mongoose';
-import { LOCALES, ROLES } from '@jfa/shared';
+import { LOCALES } from '@jfa/shared';
 import { baseOptions } from '../helpers';
 
 /**
- * App user profile. Better Auth (Phase 1/2) manages its own `user`, `session`, `account`
- * and `verification` collections through its MongoDB adapter; this collection holds our
- * app-specific fields keyed by the Better Auth user id.
+ * App user profile. Better Auth owns identity: its `user` collection (with `role` and
+ * `twoFactorEnabled`), plus `session`, `account`, `verification` and `twoFactor`. This
+ * collection only holds our app-specific fields, keyed by the Better Auth user id.
  */
 export const UserSchema = new Schema(
   {
     authUserId: { type: String, required: true, unique: true },
-    role: { type: String, enum: ROLES, default: 'citizen', index: true },
     preferredLocale: { type: String, enum: LOCALES, default: 'en' },
     status: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
     /** DPDP: set when the user asks for deletion; a purge job removes data after the retention window. */
