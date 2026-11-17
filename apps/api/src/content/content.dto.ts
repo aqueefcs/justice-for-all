@@ -1,17 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
-import {
-  CategorySchema,
-  ChangeStatusSchema,
-  ContentStatusSchema,
-  GuideSchema,
-  ObjectIdSchema,
-  PublishingMetaSchema,
-} from '@jfa/shared';
-
-export class CreateGuideDto extends createZodDto(GuideSchema) {}
-export class UpdateGuideDto extends createZodDto(GuideSchema.partial()) {}
-export class ChangeStatusDto extends createZodDto(ChangeStatusSchema) {}
+import { CONTENT_STATUSES, ContentStatusSchema, ObjectIdSchema } from '@jfa/shared';
 
 export const ListQuerySchema = z.object({
   status: ContentStatusSchema.optional(),
@@ -21,11 +10,26 @@ export const ListQuerySchema = z.object({
 });
 export class ListQueryDto extends createZodDto(ListQuerySchema) {}
 
-export const GuideResponseSchema = GuideSchema.extend(PublishingMetaSchema.shape);
-export class GuideResponseDto extends createZodDto(GuideResponseSchema) {}
-export class GuideListResponseDto extends createZodDto(
-  z.object({ items: z.array(GuideResponseSchema), nextCursor: z.string().nullable() }),
-) {}
+const ContentKindSchema = z.enum(['guides', 'articles', 'templates', 'categories']);
 
-export const CategoryResponseSchema = CategorySchema.extend(PublishingMetaSchema.shape);
-export class CategoryListResponseDto extends createZodDto(z.object({ items: z.array(CategoryResponseSchema) })) {}
+/** One item waiting for a reviewer, across all content types. */
+export const ReviewQueueItemSchema = z.object({
+  kind: ContentKindSchema,
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  authorId: z.string().optional(),
+  updatedAt: z.string(),
+});
+export class ReviewQueueDto extends createZodDto(z.object({ items: z.array(ReviewQueueItemSchema) })) {}
+
+/** Counts per content type and status, for the admin dashboard. */
+export const ContentSummarySchema = z.object({
+  kinds: z.array(
+    z.object({
+      kind: ContentKindSchema,
+      counts: z.object(Object.fromEntries(CONTENT_STATUSES.map((s) => [s, z.number().int()])) as Record<(typeof CONTENT_STATUSES)[number], z.ZodNumber>),
+    }),
+  ),
+});
+export class ContentSummaryDto extends createZodDto(ContentSummarySchema) {}

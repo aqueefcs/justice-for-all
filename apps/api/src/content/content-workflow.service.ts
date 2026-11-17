@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { isValidObjectId, trusted, Types, type Model } from 'mongoose';
 import {
   CONTENT_PUBLISHER_ROLES,
@@ -14,24 +7,30 @@ import {
   hasAnyRole,
   type ChangeStatus,
   type ContentStatus,
-  type Guide,
 } from '@jfa/shared';
-import { AuditService } from '../audit/audit.module';
+import type { AuditService } from '../audit/audit.module';
 import type { RequestUser } from '../common/auth.types';
+import type { ContentTypeConfig } from './content-types';
 import { toResponse } from './to-response';
 
-type GuideDoc = Guide & { _id: unknown; status: ContentStatus; version: number; authorId?: string; isSample?: boolean };
+type ContentDoc = Record<string, unknown> & {
+  _id: unknown;
+  slug: string;
+  status: ContentStatus;
+  version?: number;
+  authorId?: string;
+};
 
 /**
- * Reference implementation of the content review workflow (copy this pattern for
- * articles, acts, templates — see the `add-content-type` skill).
- * draft → in_review (author) → published (reviewer, not the author) → pack build.
+ * The content review workflow, shared by every content type (one instance per type):
+ * draft → in_review (author) → published (reviewer, never the author) → pack build.
+ * Only drafts can be edited; every change is written to the audit log.
  */
-@Injectable()
-export class GuidesService {
+export class ContentWorkflowService {
   constructor(
-    @InjectModel('Guide') private readonly guides: Model<GuideDoc>,
+    private readonly model: Model<ContentDoc>,
     private readonly audit: AuditService,
+    private readonly type: ContentTypeConfig,
   ) {}
 
   async list(query: { status?: ContentStatus; limit: number; cursor?: string }) {
@@ -39,11 +38,7 @@ export class GuidesService {
     if (query.status) filter.status = query.status;
     // sanitizeFilter is on globally: server-built operators must be explicitly trusted.
     if (query.cursor) filter._id = trusted({ $lt: new Types.ObjectId(query.cursor) });
-    const docs = await this.guides
-      .find(filter)
-      .sort({ _id: -1 })
-      .limit(query.limit + 1)
-      .lean();
+    const docs = await this.model.find(filter).sort({ _id: -1 }).limit(query.limit + 1).lean();
     const hasMore = docs.length > query.limit;
     const page = hasMore ? docs.slice(0, query.limit) : docs;
     return {
@@ -56,21 +51,29 @@ export class GuidesService {
     return toResponse(await this.findOrThrow(id));
   }
 
-  async create(input: Guide, user: RequestUser) {
-    const exists = await this.guides.exists({ slug: input.slug });
-    if (exists) throw new ConflictException({ code: ERROR_CODES.CONFLICT, message: 'Slug already exists' });
-    const doc = await this.guides.create({ ...input, status: 'draft', version: 1, authorId: user.id });
-    await this.audit.log({ actor: user, action: 'guide.create', entity: 'guides', entityId: String(doc._id) });
-    return toResponse(doc.toObject());
+  async create(input: Record<string, unknown>, user: RequestUser) {
+    const data = this.type.sanitize ? this.type.sanitize(input) : input;
+    if (await this.model.exists({ slug: data.slug })) {
+      throw new ConflictException({ code: ERROR_CODES.CONFLICT, message: 'Slug already exists' });
+    }
+    const doc = await this.model.create({ ...data, status: 'draft', version: 1, authorId: user.id });
+    await this.audit.log({ actor: user, action: `${this.type.entity}.create`, entity: this.type.key, entityId: String(doc._id) });
+    return toResponse(doc.toObject() as ContentDoc);
   }
 
-  async update(id: string, input: Partial<Guide>, user: RequestUser) {
+  async update(id: string, input: Record<string, unknown>, user: RequestUser) {
     const doc = await this.findOrThrow(id);
     if (doc.status !== 'draft') {
       throw new ConflictException({ code: ERROR_CODES.INVALID_TRANSITION, message: 'Only drafts can be edited' });
     }
-    const updated = await this.guides.findByIdAndUpdate(id, { $set: input }, { returnDocument: 'after', runValidators: true }).lean();
-    await this.audit.log({ actor: user, action: 'guide.update', entity: 'guides', entityId: id });
+    const data = this.type.sanitize ? this.type.sanitize(input) : input;
+    if (typeof data.slug === 'string' && data.slug !== doc.slug && (await this.model.exists({ slug: data.slug }))) {
+      throw new ConflictException({ code: ERROR_CODES.CONFLICT, message: 'Slug already exists' });
+    }
+    const updated = await this.model
+      .findByIdAndUpdate(id, { $set: data }, { returnDocument: 'after', runValidators: true })
+      .lean();
+    await this.audit.log({ actor: user, action: `${this.type.entity}.update`, entity: this.type.key, entityId: id });
     return toResponse(updated!);
   }
 
@@ -95,22 +98,24 @@ export class GuidesService {
       set.reviewerId = user.id;
       set.publishedAt = new Date();
       set.version = (doc.version ?? 1) + 1;
+      // Approved by a panel lawyer: no longer starter/sample content.
+      set.isSample = false;
     }
-    const updated = await this.guides.findByIdAndUpdate(id, { $set: set }, { returnDocument: 'after' }).lean();
+    const updated = await this.model.findByIdAndUpdate(id, { $set: set }, { returnDocument: 'after' }).lean();
     await this.audit.log({
       actor: user,
-      action: `guide.status.${input.status}`,
-      entity: 'guides',
+      action: `${this.type.entity}.status.${input.status}`,
+      entity: this.type.key,
       entityId: id,
-      meta: { from: doc.status, to: input.status },
+      meta: { from: doc.status, to: input.status, ...(input.note ? { hasNote: true } : {}) },
     });
     return toResponse(updated!);
   }
 
   private async findOrThrow(id: string) {
     if (!isValidObjectId(id)) throw new BadRequestException({ code: ERROR_CODES.VALIDATION_FAILED, message: 'Invalid id' });
-    const doc = await this.guides.findById(id).lean();
-    if (!doc) throw new NotFoundException({ code: ERROR_CODES.NOT_FOUND, message: 'Guide not found' });
+    const doc = await this.model.findById(id).lean();
+    if (!doc) throw new NotFoundException({ code: ERROR_CODES.NOT_FOUND, message: `${this.type.label} not found` });
     return doc;
   }
 }

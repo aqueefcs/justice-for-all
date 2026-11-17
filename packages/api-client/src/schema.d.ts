@@ -84,6 +84,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/content/articles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ArticlesController_list"];
+        put?: never;
+        post: operations["ArticlesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/articles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ArticlesController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["ArticlesController_update"];
+        trace?: never;
+    };
+    "/v1/content/articles/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ArticlesController_changeStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TemplatesController_list"];
+        put?: never;
+        post: operations["TemplatesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TemplatesController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["TemplatesController_update"];
+        trace?: never;
+    };
+    "/v1/content/templates/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TemplatesController_changeStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/content/categories": {
         parameters: {
             query?: never;
@@ -91,7 +187,71 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["CategoriesController_list"];
+        get: operations["CategorysController_list"];
+        put?: never;
+        post: operations["CategorysController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategorysController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CategorysController_update"];
+        trace?: never;
+    };
+    "/v1/content/categories/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CategorysController_changeStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/review-queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ContentOverviewController_reviewQueue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/content/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ContentOverviewController_summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -286,7 +446,243 @@ export interface components {
                 };
             };
         };
-        ChangeStatusDto: {
+        ChangeGuideStatusDto: {
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            note?: string;
+        };
+        ArticleListResponseDto: {
+            items: {
+                slug: string;
+                categorySlug: string;
+                /** @default [] */
+                tags: string[];
+                translations: {
+                    [key: string]: {
+                        title: string;
+                        summary: string;
+                        body: string;
+                        /**
+                         * @default draft
+                         * @enum {string}
+                         */
+                        status: "draft" | "in_review" | "published" | "archived";
+                    };
+                };
+                id: string;
+                /** @enum {string} */
+                status: "draft" | "in_review" | "published" | "archived";
+                version: number;
+                authorId?: string;
+                reviewerId?: string;
+                /** Format: date-time */
+                publishedAt?: string;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            nextCursor: string[];
+        };
+        ArticleResponseDto: {
+            slug: string;
+            categorySlug: string;
+            /** @default [] */
+            tags: string[];
+            translations: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    body: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+            id: string;
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            version: number;
+            authorId?: string;
+            reviewerId?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateArticleDto: {
+            slug: string;
+            categorySlug: string;
+            /** @default [] */
+            tags: string[];
+            translations: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    body: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        UpdateArticleDto: {
+            slug?: string;
+            categorySlug?: string;
+            /** @default [] */
+            tags: string[];
+            translations?: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    body: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        ChangeArticleStatusDto: {
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            note?: string;
+        };
+        TemplateListResponseDto: {
+            items: {
+                slug: string;
+                categorySlug: string;
+                fields: {
+                    key: string;
+                    /** @enum {string} */
+                    type: "text" | "multiline" | "date" | "number" | "phone";
+                    /** @default true */
+                    required: boolean;
+                    maxLength?: number;
+                }[];
+                translations: {
+                    [key: string]: {
+                        title: string;
+                        summary: string;
+                        fieldLabels: {
+                            [key: string]: string;
+                        };
+                        bodyHtml: string;
+                        /**
+                         * @default draft
+                         * @enum {string}
+                         */
+                        status: "draft" | "in_review" | "published" | "archived";
+                    };
+                };
+                id: string;
+                /** @enum {string} */
+                status: "draft" | "in_review" | "published" | "archived";
+                version: number;
+                authorId?: string;
+                reviewerId?: string;
+                /** Format: date-time */
+                publishedAt?: string;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            nextCursor: string[];
+        };
+        TemplateResponseDto: {
+            slug: string;
+            categorySlug: string;
+            fields: {
+                key: string;
+                /** @enum {string} */
+                type: "text" | "multiline" | "date" | "number" | "phone";
+                /** @default true */
+                required: boolean;
+                maxLength?: number;
+            }[];
+            translations: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    fieldLabels: {
+                        [key: string]: string;
+                    };
+                    bodyHtml: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+            id: string;
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            version: number;
+            authorId?: string;
+            reviewerId?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateTemplateDto: {
+            slug: string;
+            categorySlug: string;
+            fields: {
+                key: string;
+                /** @enum {string} */
+                type: "text" | "multiline" | "date" | "number" | "phone";
+                /** @default true */
+                required: boolean;
+                maxLength?: number;
+            }[];
+            translations: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    fieldLabels: {
+                        [key: string]: string;
+                    };
+                    bodyHtml: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        UpdateTemplateDto: {
+            slug?: string;
+            categorySlug?: string;
+            fields?: {
+                key: string;
+                /** @enum {string} */
+                type: "text" | "multiline" | "date" | "number" | "phone";
+                /** @default true */
+                required: boolean;
+                maxLength?: number;
+            }[];
+            translations?: {
+                [key: string]: {
+                    title: string;
+                    summary: string;
+                    fieldLabels: {
+                        [key: string]: string;
+                    };
+                    bodyHtml: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        ChangeTemplateStatusDto: {
             /** @enum {string} */
             status: "draft" | "in_review" | "published" | "archived";
             note?: string;
@@ -318,6 +714,96 @@ export interface components {
                 publishedAt?: string;
                 /** Format: date-time */
                 updatedAt: string;
+            }[];
+            nextCursor: string[];
+        };
+        CategoryResponseDto: {
+            slug: string;
+            icon: string;
+            /** @default 0 */
+            order: number;
+            translations: {
+                [key: string]: {
+                    title: string;
+                    description?: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+            id: string;
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            version: number;
+            authorId?: string;
+            reviewerId?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateCategoryDto: {
+            slug: string;
+            icon: string;
+            /** @default 0 */
+            order: number;
+            translations: {
+                [key: string]: {
+                    title: string;
+                    description?: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        UpdateCategoryDto: {
+            slug?: string;
+            icon?: string;
+            /** @default 0 */
+            order: number;
+            translations?: {
+                [key: string]: {
+                    title: string;
+                    description?: string;
+                    /**
+                     * @default draft
+                     * @enum {string}
+                     */
+                    status: "draft" | "in_review" | "published" | "archived";
+                };
+            };
+        };
+        ChangeCategoryStatusDto: {
+            /** @enum {string} */
+            status: "draft" | "in_review" | "published" | "archived";
+            note?: string;
+        };
+        ReviewQueueDto: {
+            items: {
+                /** @enum {string} */
+                kind: "guides" | "articles" | "templates" | "categories";
+                id: string;
+                slug: string;
+                title: string;
+                authorId?: string;
+                updatedAt: string;
+            }[];
+        };
+        ContentSummaryDto: {
+            kinds: {
+                /** @enum {string} */
+                kind: "guides" | "articles" | "templates" | "categories";
+                counts: {
+                    draft: number;
+                    in_review: number;
+                    published: number;
+                    archived: number;
+                };
             }[];
         };
         PublishPacksDto: {
@@ -488,7 +974,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ChangeStatusDto"];
+                "application/json": components["schemas"]["ChangeGuideStatusDto"];
             };
         };
         responses: {
@@ -502,7 +988,358 @@ export interface operations {
             };
         };
     };
-    CategoriesController_list: {
+    ArticlesController_list: {
+        parameters: {
+            query?: {
+                status?: "draft" | "in_review" | "published" | "archived";
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleListResponseDto"];
+                };
+            };
+        };
+    };
+    ArticlesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateArticleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleResponseDto"];
+                };
+            };
+        };
+    };
+    ArticlesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleResponseDto"];
+                };
+            };
+        };
+    };
+    ArticlesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateArticleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleResponseDto"];
+                };
+            };
+        };
+    };
+    ArticlesController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeArticleStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleResponseDto"];
+                };
+            };
+        };
+    };
+    TemplatesController_list: {
+        parameters: {
+            query?: {
+                status?: "draft" | "in_review" | "published" | "archived";
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateListResponseDto"];
+                };
+            };
+        };
+    };
+    TemplatesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTemplateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponseDto"];
+                };
+            };
+        };
+    };
+    TemplatesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponseDto"];
+                };
+            };
+        };
+    };
+    TemplatesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTemplateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponseDto"];
+                };
+            };
+        };
+    };
+    TemplatesController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeTemplateStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateResponseDto"];
+                };
+            };
+        };
+    };
+    CategorysController_list: {
+        parameters: {
+            query?: {
+                status?: "draft" | "in_review" | "published" | "archived";
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListResponseDto"];
+                };
+            };
+        };
+    };
+    CategorysController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+        };
+    };
+    CategorysController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+        };
+    };
+    CategorysController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+        };
+    };
+    CategorysController_changeStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeCategoryStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+        };
+    };
+    ContentOverviewController_reviewQueue: {
         parameters: {
             query?: never;
             header?: never;
@@ -516,7 +1353,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CategoryListResponseDto"];
+                    "application/json": components["schemas"]["ReviewQueueDto"];
+                };
+            };
+        };
+    };
+    ContentOverviewController_summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentSummaryDto"];
                 };
             };
         };
